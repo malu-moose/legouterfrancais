@@ -20,16 +20,16 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --vert-sapin:#1F3329;
   --vert-sapin-clair:#2C4A3B;
-  --or:#C9A96E;
-  --bleu:#002395;
-  --rouge:#ED2939;
-  --creme:#FAF8F5;
+  --or:#D8B36A;
+  --bleu:#3F6FB5;
+  --rouge:#C2473B;
+  --creme:#F6EEDF;
   --blanc:#FFFFFF;
 }
 *{box-sizing:border-box;}
@@ -58,7 +58,7 @@ a{color:inherit;}
 /* ---------- Nav ---------- */
 nav.site-nav{
   position:sticky;top:0;z-index:50;
-  background:rgba(250,248,245,0.92);
+  background:rgba(246,238,223,0.92);
   backdrop-filter:blur(6px);
   border-bottom:1px solid rgba(31,51,41,0.08);
 }
@@ -67,7 +67,7 @@ nav.site-nav{
   padding:14px 24px;max-width:1080px;margin:0 auto;
 }
 .nav-brand{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   font-size:19px;color:var(--vert-sapin);text-decoration:none;
 }
 .nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
@@ -88,7 +88,7 @@ nav.site-nav{
   padding:88px 24px 72px;
 }
 .hero h1{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   font-size:clamp(38px,7vw,64px);
   margin:0;letter-spacing:0.2px;
 }
@@ -118,7 +118,7 @@ section{padding:64px 0;}
   color:var(--or);font-weight:600;margin-bottom:10px;
 }
 .section-head h2{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   font-size:clamp(26px,4vw,36px);margin:0;
 }
 .section-head p{margin-top:14px;color:var(--vert-sapin-clair);font-size:15.5px;}
@@ -135,7 +135,7 @@ section{padding:64px 0;}
   background:
     linear-gradient(rgba(31,51,41,0.03),rgba(31,51,41,0.03)),
     var(--creme);
-  border:1.5px dashed rgba(201,169,110,0.55);
+  border:1.5px dashed rgba(216,179,106,0.55);
   background-size:cover;background-position:center;
   display:flex;align-items:flex-end;
 }
@@ -168,10 +168,10 @@ section{padding:64px 0;}
 }
 .about .eyebrow{color:var(--or);}
 .about h2{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   color:var(--blanc);font-size:clamp(24px,4vw,32px);margin:0 0 18px;
 }
-.about p{max-width:620px;margin:0 auto;font-size:15.5px;color:rgba(250,248,245,0.85);}
+.about p{max-width:620px;margin:0 auto;font-size:15.5px;color:rgba(246,238,223,0.85);}
 
 /* ---------- Où nous trouver ---------- */
 .market-card{
@@ -206,7 +206,7 @@ section{padding:64px 0;}
   padding:16px 28px;
   border-radius:14px;
   background:var(--blanc);
-  border:1.5px solid rgba(201,169,110,0.4);
+  border:1.5px solid rgba(216,179,106,0.4);
   font-size:17px;font-weight:600;color:var(--vert-sapin);
   text-decoration:none;
 }
