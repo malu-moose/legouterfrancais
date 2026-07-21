@@ -64,8 +64,12 @@ nav.site-nav{
   padding:14px 24px;max-width:1080px;margin:0 auto;
 }
 .nav-brand{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
   font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   font-size:19px;color:var(--vert-sapin);text-decoration:none;
+}
+.nav-brand .tricolor-bar{
+  width:48px;height:2px;margin:0;
 }
 .nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
 .nav-links a{
@@ -265,7 +269,10 @@ footer .tricolor-bar{margin-bottom:14px;}
 
 <nav class="site-nav">
   <div class="nav-inner">
-    <a href="#" class="nav-brand">Le Goûter Français</a>
+    <a href="#" class="nav-brand">
+      Le Goûter Français
+      <span class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></span>
+    </a>
     <ul class="nav-links">
       <li><a href="#creations">Créations</a></li>
       <li><a href="#histoire">Notre histoire</a></li>
