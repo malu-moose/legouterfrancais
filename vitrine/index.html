@@ -124,11 +124,26 @@ section{padding:64px 0;}
 .photo-grid{
   display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
 }
-.photo-box{
+.photo-card{
   position:relative;
   aspect-ratio:4/5;
+  perspective:1200px;
+}
+.photo-flip{
+  position:relative;width:100%;height:100%;
+  cursor:pointer;
+  transition:transform .6s cubic-bezier(.4,.2,.2,1);
+  transform-style:preserve-3d;
+}
+.photo-card.flipped .photo-flip{transform:rotateY(180deg);}
+.photo-face{
+  position:absolute;inset:0;
   border-radius:18px;
   overflow:hidden;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.photo-front{
   background:
     linear-gradient(rgba(31,51,41,0.03),rgba(31,51,41,0.03)),
     var(--creme);
@@ -136,7 +151,7 @@ section{padding:64px 0;}
   background-size:cover;background-position:center;
   display:flex;align-items:flex-end;
 }
-.photo-box::before{
+.photo-front::before{
   content:"";
   position:absolute;inset:0;margin:auto;
   width:52px;height:52px;
@@ -153,6 +168,32 @@ section{padding:64px 0;}
 }
 .photo-caption small{
   display:block;font-size:11px;font-weight:400;color:var(--or);margin-top:2px;
+}
+.photo-caption .flip-hint{
+  display:block;font-size:10px;font-weight:400;color:rgba(250,248,245,0.55);margin-top:6px;
+  text-transform:uppercase;letter-spacing:0.06em;
+}
+.photo-back{
+  transform:rotateY(180deg);
+  background:var(--vert-sapin);
+  color:var(--creme);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  padding:20px 16px;
+  border:1.5px solid rgba(216,179,106,0.55);
+}
+.photo-back h3{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:17px;color:var(--blanc);margin:0;
+}
+.photo-back p{
+  font-size:12.5px;line-height:1.5;color:rgba(246,238,223,0.8);
+  margin:10px 0 0;
+}
+.photo-back .back-price{
+  margin-top:14px;
+  font-family:'Jost',sans-serif;font-weight:600;font-size:20px;
+  color:var(--or);
 }
 
 /* ---------- About ---------- */
@@ -263,17 +304,53 @@ footer .tricolor-bar{margin-bottom:14px;}
       <p>Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.</p>
     </div>
     <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
-      <li class="photo-box" style="background-image:url('images/cookie-1.jpg');">
-        <div class="photo-caption">Smores<small>chocolat fondu, guimauve grillée, fleur de sel</small></div>
+      <li class="photo-card">
+        <div class="photo-flip">
+          <div class="photo-face photo-front" style="background-image:url('images/cookie-1.jpg');">
+            <div class="photo-caption">Smores<small>chocolat fondu, guimauve grillée, fleur de sel</small><span class="flip-hint">Toucher pour voir le prix</span></div>
+          </div>
+          <div class="photo-face photo-back">
+            <h3>Smores</h3>
+            <p>Pâte sablée, chocolat fondu, guimauve grillée, fleur de sel</p>
+            <div class="back-price">— $</div>
+          </div>
+        </div>
       </li>
-      <li class="photo-box" style="background-image:url('images/cookie-2.jpg');">
-        <div class="photo-caption">Biscoff<small>caramel coulé, biscuit Biscoff croquant</small></div>
+      <li class="photo-card">
+        <div class="photo-flip">
+          <div class="photo-face photo-front" style="background-image:url('images/cookie-2.jpg');">
+            <div class="photo-caption">Biscoff<small>caramel coulé, biscuit Biscoff croquant</small><span class="flip-hint">Toucher pour voir le prix</span></div>
+          </div>
+          <div class="photo-face photo-back">
+            <h3>Biscoff</h3>
+            <p>Pâte sablée, caramel coulé, biscuit Biscoff croquant</p>
+            <div class="back-price">— $</div>
+          </div>
+        </div>
       </li>
-      <li class="photo-box" style="background-image:url('images/cookie-3.jpg');">
-        <div class="photo-caption">Framboise & chocolat blanc<small>coulis de framboise, chocolat blanc</small></div>
+      <li class="photo-card">
+        <div class="photo-flip">
+          <div class="photo-face photo-front" style="background-image:url('images/cookie-3.jpg');">
+            <div class="photo-caption">Framboise & chocolat blanc<small>coulis de framboise, chocolat blanc</small><span class="flip-hint">Toucher pour voir le prix</span></div>
+          </div>
+          <div class="photo-face photo-back">
+            <h3>Framboise & chocolat blanc</h3>
+            <p>Pâte sablée, coulis de framboise, chocolat blanc</p>
+            <div class="back-price">— $</div>
+          </div>
+        </div>
       </li>
-      <li class="photo-box" style="background-image:url('images/cookie-4.jpg');">
-        <div class="photo-caption">Bueno<small>chocolat-noisette, gaufrette Kinder Bueno</small></div>
+      <li class="photo-card">
+        <div class="photo-flip">
+          <div class="photo-face photo-front" style="background-image:url('images/cookie-4.jpg');">
+            <div class="photo-caption">Bueno<small>chocolat-noisette, gaufrette Kinder Bueno</small><span class="flip-hint">Toucher pour voir le prix</span></div>
+          </div>
+          <div class="photo-face photo-back">
+            <h3>Bueno</h3>
+            <p>Pâte sablée, crème chocolat-noisette, gaufrette Kinder Bueno</p>
+            <div class="back-price">— $</div>
+          </div>
+        </div>
       </li>
     </ul>
   </section>
@@ -338,6 +415,10 @@ footer .tricolor-bar{margin-bottom:14px;}
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
+
+document.querySelectorAll('.photo-card').forEach((card) => {
+  card.addEventListener('click', () => card.classList.toggle('flipped'));
+});
 </script>
 </body>
 </html>
