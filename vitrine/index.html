@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Goûter Français — Cookies artisanaux</title>
+<meta name="description" content="Le Goûter Français : cookies artisanaux inspirés de la pâtisserie française. Retrouvez-nous en marché.">
+<meta name="theme-color" content="#1F3329">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Le Goûter Français — Cookies artisanaux">
+<meta property="og:description" content="Le goûter, à la française. Cookies artisanaux, retrouvez-nous en marché.">
+<meta property="og:url" content="https://legouterfrancais.com/">
+<meta property="og:image" content="https://legouterfrancais.com/vitrine/images/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://legouterfrancais.com/">
+
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,900&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --vert-sapin:#1F3329;
+  --vert-sapin-clair:#2C4A3B;
+  --or:#C9A96E;
+  --bleu:#002395;
+  --rouge:#ED2939;
+  --creme:#FAF8F5;
+  --blanc:#FFFFFF;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--creme);
+  color:var(--vert-sapin);
+  font-family:'Jost',sans-serif;
+  font-weight:400;
+  line-height:1.6;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+/* ---------- Tricolor thread ---------- */
+.tricolor-bar{
+  width:120px;height:3px;display:flex;border-radius:2px;overflow:hidden;margin:14px auto 0;
+}
+.tricolor-bar span{flex:1;}
+.tricolor-bar .b{background:var(--bleu);}
+.tricolor-bar .w{background:var(--blanc);}
+.tricolor-bar .r{background:var(--rouge);}
+
+/* ---------- Nav ---------- */
+nav.site-nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,248,245,0.92);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(31,51,41,0.08);
+}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;max-width:1080px;margin:0 auto;
+}
+.nav-brand{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:19px;color:var(--vert-sapin);text-decoration:none;
+}
+.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
+.nav-links a{
+  font-size:14px;text-decoration:none;color:var(--vert-sapin);
+  opacity:0.75;transition:opacity .15s ease;
+}
+.nav-links a:hover{opacity:1;}
+.nav-cta{
+  font-size:13.5px;font-weight:600;
+  background:var(--vert-sapin);color:var(--blanc)!important;
+  padding:9px 18px;border-radius:999px;opacity:1!important;
+}
+
+/* ---------- Hero ---------- */
+.hero{
+  text-align:center;
+  padding:88px 24px 72px;
+}
+.hero-mark{
+  width:76px;height:76px;margin:0 auto 22px;
+  border-radius:20px;
+  background:var(--vert-sapin);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(31,51,41,0.18);
+}
+.hero-mark img{width:100%;height:100%;border-radius:20px;}
+.hero h1{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:clamp(38px,7vw,64px);
+  margin:0;letter-spacing:0.2px;
+}
+.hero .tagline{
+  font-size:clamp(16px,2.4vw,20px);
+  color:var(--vert-sapin-clair);
+  margin-top:18px;
+  font-weight:300;
+}
+.hero-actions{
+  margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+}
+.btn{
+  display:inline-block;padding:13px 26px;border-radius:999px;
+  font-size:14.5px;font-weight:600;text-decoration:none;
+  transition:transform .12s ease, opacity .15s ease;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--vert-sapin);color:var(--blanc);}
+.btn-ghost{background:transparent;color:var(--vert-sapin);border:1.5px solid rgba(31,51,41,0.2);}
+
+/* ---------- Section shell ---------- */
+section{padding:64px 0;}
+.section-head{text-align:center;max-width:560px;margin:0 auto 44px;}
+.eyebrow{
+  font-size:12.5px;text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--or);font-weight:600;margin-bottom:10px;
+}
+.section-head h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:clamp(26px,4vw,36px);margin:0;
+}
+.section-head p{margin-top:14px;color:var(--vert-sapin-clair);font-size:15.5px;}
+
+/* ---------- Photo grid ---------- */
+.photo-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+}
+.photo-box{
+  position:relative;
+  aspect-ratio:4/5;
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(31,51,41,0.03),rgba(31,51,41,0.03)),
+    var(--creme);
+  border:1.5px dashed rgba(201,169,110,0.55);
+  background-size:cover;background-position:center;
+  display:flex;align-items:flex-end;
+}
+.photo-box::before{
+  content:"";
+  position:absolute;inset:0;margin:auto;
+  width:52px;height:52px;
+  background:var(--or);
+  -webkit-mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6"><circle cx="12" cy="12" r="9.5"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="9" r="1"/><circle cx="15.5" cy="14" r="1"/><circle cx="9.5" cy="15" r="1"/></svg>') center/contain no-repeat;
+  mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6"><circle cx="12" cy="12" r="9.5"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="9" r="1"/><circle cx="15.5" cy="14" r="1"/><circle cx="9.5" cy="15" r="1"/></svg>') center/contain no-repeat;
+  opacity:0.35;
+}
+.photo-caption{
+  position:relative;width:100%;
+  padding:14px 16px;
+  background:linear-gradient(0deg,rgba(31,51,41,0.72),rgba(31,51,41,0));
+  color:var(--blanc);font-size:14px;font-weight:500;
+}
+.photo-caption small{
+  display:block;font-size:11px;font-weight:400;color:var(--or);margin-top:2px;
+}
+
+/* ---------- About ---------- */
+.about{
+  background:var(--vert-sapin);
+  color:var(--creme);
+  border-radius:28px;
+  padding:56px 40px;
+  text-align:center;
+}
+.about .eyebrow{color:var(--or);}
+.about h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  color:var(--blanc);font-size:clamp(24px,4vw,32px);margin:0 0 18px;
+}
+.about p{max-width:620px;margin:0 auto;font-size:15.5px;color:rgba(250,248,245,0.85);}
+
+/* ---------- Où nous trouver ---------- */
+.market-card{
+  max-width:520px;margin:0 auto;
+  background:var(--blanc);
+  border-radius:18px;
+  padding:28px 30px;
+  box-shadow:0 1px 3px rgba(31,51,41,0.06);
+  border:1px solid rgba(31,51,41,0.06);
+  display:flex;gap:18px;align-items:flex-start;
+}
+.market-icon{
+  flex:0 0 44px;height:44px;border-radius:12px;
+  background:var(--creme);
+  display:flex;align-items:center;justify-content:center;
+}
+.market-icon svg{width:22px;height:22px;stroke:var(--vert-sapin);}
+.market-card h3{margin:0 0 4px;font-size:16.5px;font-weight:600;}
+.market-card p{margin:0;font-size:14.5px;color:var(--vert-sapin-clair);}
+.market-note{
+  text-align:center;font-size:12.5px;color:rgba(31,51,41,0.4);
+  margin-top:14px;font-style:italic;
+}
+
+/* ---------- Contact ---------- */
+.contact-box{
+  max-width:480px;margin:0 auto;text-align:center;
+}
+.contact-email{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-top:8px;
+  padding:16px 28px;
+  border-radius:14px;
+  background:var(--blanc);
+  border:1.5px solid rgba(201,169,110,0.4);
+  font-size:17px;font-weight:600;color:var(--vert-sapin);
+  text-decoration:none;
+}
+.contact-email svg{width:20px;height:20px;stroke:var(--or);flex:0 0 auto;}
+
+/* ---------- Footer ---------- */
+footer{
+  padding:36px 24px 48px;
+  text-align:center;
+  color:rgba(31,51,41,0.45);
+  font-size:13px;
+}
+footer .tricolor-bar{margin-bottom:14px;}
+
+/* ---------- Responsive ---------- */
+@media (max-width:760px){
+  .nav-links{display:none;}
+  .photo-grid{grid-template-columns:1fr 1fr;}
+  .photo-grid li:first-child{grid-column:span 2;}
+  .about{padding:40px 24px;border-radius:20px;}
+  .market-card{flex-direction:column;text-align:center;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">Le Goûter Français</a>
+    <ul class="nav-links">
+      <li><a href="#creations">Créations</a></li>
+      <li><a href="#histoire">Notre histoire</a></li>
+      <li><a href="#marche">Nous trouver</a></li>
+      <li><a href="#contact" class="nav-cta">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-mark"><img src="../icons/icon-192.png" alt="Logo Le Goûter Français"></div>
+  <h1>Le Goûter Français</h1>
+  <div class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></div>
+  <p class="tagline">Le goûter,<br>à la française</p>
+  <div class="hero-actions">
+    <a href="#creations" class="btn btn-primary">Voir nos créations</a>
+    <a href="#marche" class="btn btn-ghost">Nous trouver</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="creations">
+    <div class="section-head">
+      <div class="eyebrow">Nos créations</div>
+      <h2>Des cookies pensés comme des pâtisseries</h2>
+      <p>Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.</p>
+    </div>
+    <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
+      <li class="photo-box" style="background-image:url('images/cookie-1.jpg');">
+        <div class="photo-caption">S'mores doré<small>chocolat fondu, guimauve grillée, fleur de sel</small></div>
+      </li>
+      <li class="photo-box" style="background-image:url('images/cookie-2.jpg');">
+        <div class="photo-caption">Caramel & biscuit<small>caramel coulé, biscuit croquant</small></div>
+      </li>
+      <li class="photo-box" style="background-image:url('images/cookie-3.jpg');">
+        <div class="photo-caption">Framboise & chocolat blanc<small>coulis de framboise, chocolat blanc</small></div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="histoire">
+    <div class="about">
+      <div class="eyebrow">Notre histoire</div>
+      <h2>L'authenticité de la pâtisserie française, un cookie à la fois</h2>
+      <p>
+        Le Goûter Français est né d'une envie simple : retrouver dans un cookie la
+        générosité et la précision de la pâtisserie française. Chaque batch est
+        préparé en petite quantité, à la main, pour garder ce goût de fait-maison
+        qu'on ne trouve pas ailleurs.
+      </p>
+    </div>
+  </section>
+
+  <section id="marche">
+    <div class="section-head">
+      <div class="eyebrow">Où nous trouver</div>
+      <h2>Retrouvez-nous en personne</h2>
+    </div>
+    <div class="market-card">
+      <div class="market-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/><path d="M9 20v-6h6v6"/></svg>
+      </div>
+      <div>
+        <h3>Marché de [Ville]</h3>
+        <p>Samedis, 9 h – 13 h</p>
+      </div>
+    </div>
+    <p class="market-note">Détails à confirmer — emplacement à venir</p>
+  </section>
+
+  <section id="contact">
+    <div class="section-head">
+      <div class="eyebrow">Contact</div>
+      <h2>Une question, une commande ?</h2>
+    </div>
+    <div class="contact-box">
+      <a class="contact-email" href="mailto:contact@legouterfrancais.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
+        contact@legouterfrancais.com
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="tricolor-bar"></div>
+  <p>© <span id="year"></span> Le Goûter Français. Tous droits réservés.</p>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
