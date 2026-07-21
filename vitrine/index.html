@@ -133,7 +133,7 @@ section{padding:64px 0;}
 
 /* ---------- Photo grid ---------- */
 .photo-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
 }
 .photo-box{
   position:relative;
@@ -230,10 +230,11 @@ footer{
 footer .tricolor-bar{margin-bottom:14px;}
 
 /* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .photo-grid{grid-template-columns:1fr 1fr;}
+}
 @media (max-width:760px){
   .nav-links{display:none;}
-  .photo-grid{grid-template-columns:1fr 1fr;}
-  .photo-grid li:first-child{grid-column:span 2;}
   .about{padding:40px 24px;border-radius:20px;}
   .market-card{flex-direction:column;text-align:center;align-items:center;}
 }
@@ -274,13 +275,16 @@ footer .tricolor-bar{margin-bottom:14px;}
     </div>
     <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
       <li class="photo-box" style="background-image:url('images/cookie-1.jpg');">
-        <div class="photo-caption">S'mores doré<small>chocolat fondu, guimauve grillée, fleur de sel</small></div>
+        <div class="photo-caption">Smores<small>chocolat fondu, guimauve grillée, fleur de sel</small></div>
       </li>
       <li class="photo-box" style="background-image:url('images/cookie-2.jpg');">
-        <div class="photo-caption">Caramel & biscuit<small>caramel coulé, biscuit croquant</small></div>
+        <div class="photo-caption">Biscoff<small>caramel coulé, biscuit Biscoff croquant</small></div>
       </li>
       <li class="photo-box" style="background-image:url('images/cookie-3.jpg');">
         <div class="photo-caption">Framboise & chocolat blanc<small>coulis de framboise, chocolat blanc</small></div>
+      </li>
+      <li class="photo-box" style="background-image:url('images/cookie-4.jpg');">
+        <div class="photo-caption">Bueno<small>chocolat-noisette, gaufrette Kinder Bueno</small></div>
       </li>
     </ul>
   </section>
