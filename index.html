@@ -159,7 +159,7 @@ section{padding:64px 0;}
 
 /* ---------- Photo grid ---------- */
 .photo-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
 }
 .photo-card{
   position:relative;
@@ -353,6 +353,18 @@ footer .tricolor-bar{margin-bottom:14px;}
     <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
       <li class="photo-card">
         <div class="photo-flip">
+          <div class="photo-face photo-front">
+            <div class="photo-caption"><span data-i18n="card.original.name">Cookie Original</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
+          </div>
+          <div class="photo-face photo-back">
+            <h3 data-i18n="card.original.name">Cookie Original</h3>
+            <p data-i18n="card.original.desc">Chocolat noir 70 %, fleur de sel — notre toute première recette, celle qui a tout commencé</p>
+            <div class="back-price" data-i18n="card.original.price">4,50 $</div>
+          </div>
+        </div>
+      </li>
+      <li class="photo-card">
+        <div class="photo-flip">
           <div class="photo-face photo-front" style="background-image:url('images/cookie-1.jpg');">
             <div class="photo-caption"><span data-i18n="card.smores.name">S'more's</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
@@ -536,6 +548,9 @@ document.querySelectorAll('.photo-card').forEach((card) => {
       "creations.body": "Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.",
       "card.hint": "Touchez pour voir la composition",
       "card.price": "5 $",
+      "card.original.name": "Cookie Original",
+      "card.original.desc": "Chocolat noir 70 %, fleur de sel — notre toute première recette, celle qui a tout commencé",
+      "card.original.price": "4,50 $",
       "card.smores.name": "S'more's",
       "card.smores.desc": "Chocolat mi-sucré, biscuit Graham, mini guimauve — drizzle chocolat & biscuits concassés",
       "card.biscoff.name": "Biscoff",
@@ -580,6 +595,9 @@ document.querySelectorAll('.photo-card').forEach((card) => {
       "creations.body": "Every recipe is crafted with carefully chosen ingredients and a refined finish — Guérande sea salt, dark chocolate, homemade praliné.",
       "card.hint": "Tap to see what's inside",
       "card.price": "$5",
+      "card.original.name": "Original Cookie",
+      "card.original.desc": "Dark chocolate 70%, sea salt flakes — our very first recipe, the one that started it all",
+      "card.original.price": "$4.50",
       "card.smores.name": "S'more's",
       "card.smores.desc": "Semi-sweet chocolate, Graham cracker, mini marshmallow — chocolate drizzle & crushed crackers",
       "card.biscoff.name": "Biscoff",
