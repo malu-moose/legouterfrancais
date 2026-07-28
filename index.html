@@ -71,6 +71,7 @@ nav.site-nav{
 .nav-brand .tricolor-bar{
   width:48px;height:2px;margin:0;
 }
+.nav-right{display:flex;align-items:center;gap:22px;}
 .nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
 .nav-links a{
   font-size:14px;text-decoration:none;color:var(--vert-sapin);
@@ -82,6 +83,38 @@ nav.site-nav{
   background:var(--vert-sapin);color:var(--blanc)!important;
   padding:9px 18px;border-radius:999px;opacity:1!important;
 }
+
+/* ---------- Language switch ---------- */
+.lang-switch{position:relative;}
+.lang-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:50%;
+  border:1.5px solid rgba(31,51,41,0.15);
+  background:transparent;cursor:pointer;
+  color:var(--vert-sapin);
+  transition:background .15s ease;
+}
+.lang-btn:hover{background:rgba(31,51,41,0.06);}
+.lang-btn svg{width:20px;height:20px;}
+.lang-menu{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--blanc);
+  border:1px solid rgba(31,51,41,0.1);
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(31,51,41,0.12);
+  padding:6px;min-width:130px;
+  display:none;flex-direction:column;gap:2px;
+  z-index:60;
+}
+.lang-menu.open{display:flex;}
+.lang-menu button{
+  border:none;background:none;text-align:left;
+  padding:9px 12px;border-radius:8px;
+  font-size:14px;font-family:'Jost',sans-serif;color:var(--vert-sapin);
+  cursor:pointer;
+}
+.lang-menu button:hover{background:var(--creme);}
+.lang-menu button.active{font-weight:600;color:var(--or);background:rgba(216,179,106,0.12);}
 
 /* ---------- Hero ---------- */
 .hero{
@@ -273,23 +306,39 @@ footer .tricolor-bar{margin-bottom:14px;}
       Le Goûter Français
       <span class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></span>
     </a>
-    <ul class="nav-links">
-      <li><a href="#creations">Créations</a></li>
-      <li><a href="#histoire">Notre histoire</a></li>
-      <li><a href="#marche">Nous trouver</a></li>
-      <li><a href="#contact" class="nav-cta">Contact</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#creations" data-i18n="nav.creations">Créations</a></li>
+        <li><a href="#histoire" data-i18n="nav.histoire">Notre histoire</a></li>
+        <li><a href="#marche" data-i18n="nav.marche">Nous trouver</a></li>
+        <li><a href="#contact" class="nav-cta" data-i18n="nav.contact">Contact</a></li>
+      </ul>
+      <div class="lang-switch">
+        <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Changer de langue / Change language">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.5"/>
+            <ellipse cx="12" cy="12" rx="4.3" ry="9.5"/>
+            <line x1="2.5" y1="12" x2="21.5" y2="12"/>
+            <path d="M4.2 6.5h15.6M4.2 17.5h15.6"/>
+          </svg>
+        </button>
+        <div class="lang-menu" id="lang-menu" role="menu">
+          <button type="button" data-lang="fr" role="menuitem">Français</button>
+          <button type="button" data-lang="en" role="menuitem">English</button>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
 <header class="hero">
   <h1>Le Goûter Français</h1>
   <div class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></div>
-  <div class="eyebrow" style="margin-top:22px;">Bientôt à Québec</div>
-  <p class="tagline">Le goûter,<br>à la française</p>
+  <div class="eyebrow" style="margin-top:22px;" data-i18n="hero.eyebrow">Bientôt à Québec</div>
+  <p class="tagline" data-i18n-html="hero.tagline">Le goûter,<br>à la française</p>
   <div class="hero-actions">
-    <a href="#creations" class="btn btn-primary">Voir nos créations</a>
-    <a href="#marche" class="btn btn-ghost">Nous trouver</a>
+    <a href="#creations" class="btn btn-primary" data-i18n="hero.cta1">Voir nos créations</a>
+    <a href="#marche" class="btn btn-ghost" data-i18n="hero.cta2">Nous trouver</a>
   </div>
 </header>
 
@@ -297,104 +346,104 @@ footer .tricolor-bar{margin-bottom:14px;}
 
   <section id="creations">
     <div class="section-head">
-      <div class="eyebrow">Nos créations</div>
-      <h2>Ce rituel de l'après-midi que toute la France attend chaque jour est enfin arrivé jusqu'à vous.</h2>
-      <p>Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.</p>
+      <div class="eyebrow" data-i18n="creations.eyebrow">Nos créations</div>
+      <h2 data-i18n="creations.heading">Ce rituel de l'après-midi que toute la France attend chaque jour est enfin arrivé jusqu'à vous.</h2>
+      <p data-i18n="creations.body">Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.</p>
     </div>
     <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front" style="background-image:url('images/cookie-1.jpg');">
-            <div class="photo-caption">S'more's<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.smores.name">S'more's</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>S'more's</h3>
-            <p>Chocolat mi-sucré, biscuit Graham, mini guimauve — drizzle chocolat &amp; biscuits concassés</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.smores.name">S'more's</h3>
+            <p data-i18n="card.smores.desc">Chocolat mi-sucré, biscuit Graham, mini guimauve — drizzle chocolat &amp; biscuits concassés</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front" style="background-image:url('images/cookie-2.jpg');">
-            <div class="photo-caption">Biscoff<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.biscoff.name">Biscoff</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Biscoff</h3>
-            <p>Pépites choco lait, pâte Biscoff en fourrage — drizzle Biscoff &amp; demi-biscuit</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.biscoff.name">Biscoff</h3>
+            <p data-i18n="card.biscoff.desc">Pépites choco lait, pâte Biscoff en fourrage — drizzle Biscoff &amp; demi-biscuit</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front" style="background-image:url('images/cookie-3.jpg');">
-            <div class="photo-caption">Framboise<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.framboise.name">Framboise</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Framboise</h3>
-            <p>Chocolat blanc, confiture framboise en fourrage — points de confiture, pistoles chocolat blanc, framboise séchée</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.framboise.name">Framboise</h3>
+            <p data-i18n="card.framboise.desc">Chocolat blanc, confiture framboise en fourrage — points de confiture, pistoles chocolat blanc, framboise séchée</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front" style="background-image:url('images/cookie-4.jpg');">
-            <div class="photo-caption">Bueno<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.bueno.name">Bueno</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Bueno</h3>
-            <p>Chocolat mi-sucré, chocolat blanc, crème de noisette en fourrage — crème de noisette &amp; morceau Bueno</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.bueno.name">Bueno</h3>
+            <p data-i18n="card.bueno.desc">Chocolat mi-sucré, chocolat blanc, crème de noisette en fourrage — crème de noisette &amp; morceau Bueno</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front">
-            <div class="photo-caption">Érable Pacane<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.erable.name">Érable Pacane</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Érable Pacane</h3>
-            <p>Sucre d'érable, pacanes torréfiées — sirop d'érable réduit, pacanes, pépites d'érable</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.erable.name">Érable Pacane</h3>
+            <p data-i18n="card.erable.desc">Sucre d'érable, pacanes torréfiées — sirop d'érable réduit, pacanes, pépites d'érable</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front">
-            <div class="photo-caption">Trois Choco<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.troischoco.name">Trois Choco</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Trois Choco</h3>
-            <p>Trio de chocolats noir, mi-sucré et blanc — drizzle des 3 chocolats</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.troischoco.name">Trois Choco</h3>
+            <p data-i18n="card.troischoco.desc">Trio de chocolats noir, mi-sucré et blanc — drizzle des 3 chocolats</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front">
-            <div class="photo-caption">Nutella Peanut<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.nutella.name">Nutella Peanut</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Nutella Peanut</h3>
-            <p>Chocolat au lait, Nutella &amp; beurre d'arachide en fourrage — drizzle &amp; arachides salées</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.nutella.name">Nutella Peanut</h3>
+            <p data-i18n="card.nutella.desc">Chocolat au lait, Nutella &amp; beurre d'arachide en fourrage — drizzle &amp; arachides salées</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
       <li class="photo-card">
         <div class="photo-flip">
           <div class="photo-face photo-front">
-            <div class="photo-caption">Brookie<span class="flip-hint">Touchez pour voir la composition</span></div>
+            <div class="photo-caption"><span data-i18n="card.brookie.name">Brookie</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
           </div>
           <div class="photo-face photo-back">
-            <h3>Brookie</h3>
-            <p>Pépites choco lait, morceau de brownie maison en fourrage — drizzle &amp; brownie émietté</p>
-            <div class="back-price">5 $</div>
+            <h3 data-i18n="card.brookie.name">Brookie</h3>
+            <p data-i18n="card.brookie.desc">Pépites choco lait, morceau de brownie maison en fourrage — drizzle &amp; brownie émietté</p>
+            <div class="back-price" data-i18n="card.price">5 $</div>
           </div>
         </div>
       </li>
@@ -403,9 +452,9 @@ footer .tricolor-bar{margin-bottom:14px;}
 
   <section id="histoire">
     <div class="about">
-      <div class="eyebrow">Notre histoire</div>
-      <h2>L'authenticité de la pâtisserie française, un cookie à la fois</h2>
-      <p>
+      <div class="eyebrow" data-i18n="histoire.eyebrow">Notre histoire</div>
+      <h2 data-i18n="histoire.heading">L'authenticité de la pâtisserie française, un cookie à la fois</h2>
+      <p data-i18n="histoire.body">
         Le Goûter Français est né d'une envie simple : retrouver dans un cookie la
         générosité et la précision de la pâtisserie française. Chaque batch est
         préparé en petite quantité, à la main, pour garder ce goût de fait-maison
@@ -416,32 +465,32 @@ footer .tricolor-bar{margin-bottom:14px;}
 
   <section id="marche">
     <div class="section-head">
-      <div class="eyebrow">Où nous trouver</div>
-      <h2>Retrouvez-nous en personne</h2>
+      <div class="eyebrow" data-i18n="marche.eyebrow">Où nous trouver</div>
+      <h2 data-i18n="marche.heading">Retrouvez-nous en personne</h2>
     </div>
     <div class="market-card">
       <div class="market-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/><path d="M9 20v-6h6v6"/></svg>
       </div>
       <div>
-        <h3>Marché de [Ville]</h3>
-        <p>Samedis, 9 h – 13 h</p>
+        <h3 data-i18n="marche.name">Marché de [Ville]</h3>
+        <p data-i18n="marche.hours">Samedis, 9 h – 13 h</p>
       </div>
     </div>
-    <p class="market-note">Détails à confirmer — emplacement à venir</p>
+    <p class="market-note" data-i18n="marche.note">Détails à confirmer — emplacement à venir</p>
   </section>
 
   <section id="bureaux">
     <div class="market-card" style="flex-direction:column;text-align:center;align-items:center;border:1.5px solid rgba(216,179,106,0.5);box-shadow:none;">
-      <h3 style="font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:22px;color:var(--or);">Pour vos bureaux et événements</h3>
-      <p style="margin-top:6px;">Pensez à nos plateaux gourmands sur commande et offrez le goûter à vos équipes !</p>
+      <h3 style="font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:22px;color:var(--or);" data-i18n="bureaux.heading">Pour vos bureaux et événements</h3>
+      <p style="margin-top:6px;" data-i18n="bureaux.body">Pensez à nos plateaux gourmands sur commande et offrez le goûter à vos équipes !</p>
     </div>
   </section>
 
   <section id="contact">
     <div class="section-head">
-      <div class="eyebrow">Contact</div>
-      <h2>Une question, une commande ?</h2>
+      <div class="eyebrow" data-i18n="contact.eyebrow">Contact</div>
+      <h2 data-i18n="contact.heading">Une question, une commande ?</h2>
     </div>
     <div class="contact-box">
       <a class="contact-email" href="mailto:contact@legouterfrancais.com">
@@ -456,7 +505,7 @@ footer .tricolor-bar{margin-bottom:14px;}
 <footer>
   <div class="tricolor-bar"></div>
   <p style="font-weight:600;letter-spacing:0.08em;color:var(--vert-sapin);">@legouterfrancais · legouterfrancais.com</p>
-  <p>© <span id="year"></span> Le Goûter Français. Tous droits réservés.</p>
+  <p>© <span id="year"></span> Le Goûter Français. <span data-i18n="footer.rights">Tous droits réservés.</span></p>
 </footer>
 
 <script>
@@ -465,6 +514,152 @@ document.getElementById('year').textContent = new Date().getFullYear();
 document.querySelectorAll('.photo-card').forEach((card) => {
   card.addEventListener('click', () => card.classList.toggle('flipped'));
 });
+
+/* ============================================================
+   TRADUCTIONS / LANGUAGE SWITCH
+============================================================ */
+(function(){
+  "use strict";
+
+  const TRANSLATIONS = {
+    fr: {
+      "nav.creations": "Créations",
+      "nav.histoire": "Notre histoire",
+      "nav.marche": "Nous trouver",
+      "nav.contact": "Contact",
+      "hero.eyebrow": "Bientôt à Québec",
+      "hero.tagline": "Le goûter,<br>à la française",
+      "hero.cta1": "Voir nos créations",
+      "hero.cta2": "Nous trouver",
+      "creations.eyebrow": "Nos créations",
+      "creations.heading": "Ce rituel de l'après-midi que toute la France attend chaque jour est enfin arrivé jusqu'à vous.",
+      "creations.body": "Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.",
+      "card.hint": "Touchez pour voir la composition",
+      "card.price": "5 $",
+      "card.smores.name": "S'more's",
+      "card.smores.desc": "Chocolat mi-sucré, biscuit Graham, mini guimauve — drizzle chocolat & biscuits concassés",
+      "card.biscoff.name": "Biscoff",
+      "card.biscoff.desc": "Pépites choco lait, pâte Biscoff en fourrage — drizzle Biscoff & demi-biscuit",
+      "card.framboise.name": "Framboise",
+      "card.framboise.desc": "Chocolat blanc, confiture framboise en fourrage — points de confiture, pistoles chocolat blanc, framboise séchée",
+      "card.bueno.name": "Bueno",
+      "card.bueno.desc": "Chocolat mi-sucré, chocolat blanc, crème de noisette en fourrage — crème de noisette & morceau Bueno",
+      "card.erable.name": "Érable Pacane",
+      "card.erable.desc": "Sucre d'érable, pacanes torréfiées — sirop d'érable réduit, pacanes, pépites d'érable",
+      "card.troischoco.name": "Trois Choco",
+      "card.troischoco.desc": "Trio de chocolats noir, mi-sucré et blanc — drizzle des 3 chocolats",
+      "card.nutella.name": "Nutella Peanut",
+      "card.nutella.desc": "Chocolat au lait, Nutella & beurre d'arachide en fourrage — drizzle & arachides salées",
+      "card.brookie.name": "Brookie",
+      "card.brookie.desc": "Pépites choco lait, morceau de brownie maison en fourrage — drizzle & brownie émietté",
+      "histoire.eyebrow": "Notre histoire",
+      "histoire.heading": "L'authenticité de la pâtisserie française, un cookie à la fois",
+      "histoire.body": "Le Goûter Français est né d'une envie simple : retrouver dans un cookie la générosité et la précision de la pâtisserie française. Chaque batch est préparé en petite quantité, à la main, pour garder ce goût de fait-maison qu'on ne trouve pas ailleurs.",
+      "marche.eyebrow": "Où nous trouver",
+      "marche.heading": "Retrouvez-nous en personne",
+      "marche.name": "Marché de [Ville]",
+      "marche.hours": "Samedis, 9 h – 13 h",
+      "marche.note": "Détails à confirmer — emplacement à venir",
+      "bureaux.heading": "Pour vos bureaux et événements",
+      "bureaux.body": "Pensez à nos plateaux gourmands sur commande et offrez le goûter à vos équipes !",
+      "contact.eyebrow": "Contact",
+      "contact.heading": "Une question, une commande ?",
+      "footer.rights": "Tous droits réservés.",
+    },
+    en: {
+      "nav.creations": "Creations",
+      "nav.histoire": "Our story",
+      "nav.marche": "Find us",
+      "nav.contact": "Contact",
+      "hero.eyebrow": "Coming soon to Québec",
+      "hero.tagline": "Teatime,<br>the French way",
+      "hero.cta1": "See our creations",
+      "hero.cta2": "Find us",
+      "creations.eyebrow": "Our creations",
+      "creations.heading": "That afternoon ritual all of France looks forward to every day has finally reached you.",
+      "creations.body": "Every recipe is crafted with carefully chosen ingredients and a refined finish — Guérande sea salt, dark chocolate, homemade praliné.",
+      "card.hint": "Tap to see what's inside",
+      "card.price": "$5",
+      "card.smores.name": "S'more's",
+      "card.smores.desc": "Semi-sweet chocolate, Graham cracker, mini marshmallow — chocolate drizzle & crushed crackers",
+      "card.biscoff.name": "Biscoff",
+      "card.biscoff.desc": "Milk chocolate chips, Biscoff filling — Biscoff drizzle & half a cookie",
+      "card.framboise.name": "Raspberry",
+      "card.framboise.desc": "White chocolate, raspberry jam filling — jam dots, white chocolate pistoles, dried raspberry",
+      "card.bueno.name": "Bueno",
+      "card.bueno.desc": "Semi-sweet chocolate, white chocolate, hazelnut cream filling — hazelnut cream & a piece of Bueno",
+      "card.erable.name": "Maple Pecan",
+      "card.erable.desc": "Maple sugar, toasted pecans — reduced maple syrup, pecans, maple flakes",
+      "card.troischoco.name": "Triple Chocolate",
+      "card.troischoco.desc": "Trio of dark, semi-sweet and white chocolate — drizzle of all 3 chocolates",
+      "card.nutella.name": "Nutella Peanut",
+      "card.nutella.desc": "Milk chocolate, Nutella & peanut butter filling — drizzle & salted peanuts",
+      "card.brookie.name": "Brookie",
+      "card.brookie.desc": "Milk chocolate chips, homemade brownie filling — drizzle & crumbled brownie",
+      "histoire.eyebrow": "Our story",
+      "histoire.heading": "The authenticity of French pastry, one cookie at a time",
+      "histoire.body": "Le Goûter Français was born from a simple idea: bring the generosity and precision of French pastry into a cookie. Every batch is made in small quantities, by hand, to keep that homemade taste you won't find anywhere else.",
+      "marche.eyebrow": "Where to find us",
+      "marche.heading": "Come see us in person",
+      "marche.name": "[City] Market",
+      "marche.hours": "Saturdays, 9 am – 1 pm",
+      "marche.note": "Details to be confirmed — location coming soon",
+      "bureaux.heading": "For your office and events",
+      "bureaux.body": "Ask about our gourmet trays made to order — treat your team to a French teatime!",
+      "contact.eyebrow": "Contact",
+      "contact.heading": "A question, an order?",
+      "footer.rights": "All rights reserved.",
+    },
+  };
+
+  const LANG_KEY = "lgf_lang";
+  const langBtn = document.getElementById("lang-btn");
+  const langMenu = document.getElementById("lang-menu");
+
+  function applyLang(lang){
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      const key = el.dataset.i18nHtml;
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+
+    langMenu.querySelectorAll("button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.lang === lang);
+    });
+
+    localStorage.setItem(LANG_KEY, lang);
+  }
+
+  langBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = langMenu.classList.toggle("open");
+    langBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!langMenu.contains(e.target) && e.target !== langBtn){
+      langMenu.classList.remove("open");
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  langMenu.querySelectorAll("button[data-lang]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      applyLang(btn.dataset.lang);
+      langMenu.classList.remove("open");
+      langBtn.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  const savedLang = localStorage.getItem(LANG_KEY);
+  applyLang(savedLang === "en" ? "en" : "fr");
+})();
 </script>
 </body>
 </html>
