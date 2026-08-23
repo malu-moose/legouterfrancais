@@ -255,6 +255,34 @@ function lastPerformance(exName, beforeDate){
   return {date:s.date, sets:ex.sets||[]};
 }
 
+function recentPainAlert(beforeDate){
+  // look at the last 5 logged sessions before/including today; flag a zone mentioned in >=2 of them
+  const list = state.sessions
+    .filter(s=>s.date<=beforeDate && s.feeling && s.feeling.courbatures==="oui" && s.feeling.courbaturesZone)
+    .sort((a,b)=> a.date<b.date?1:-1)
+    .slice(0,5);
+  const counts = {};
+  list.forEach(s=>{
+    s.feeling.courbaturesZone.split(/[,;/]/).map(z=>z.trim().toLowerCase()).filter(Boolean).forEach(zone=>{
+      counts[zone] = (counts[zone]||0)+1;
+    });
+  });
+  const flagged = Object.entries(counts).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]);
+  if(!flagged.length) return null;
+  return flagged.map(([zone,n])=>`${zone} (${n}x)`).join(", ");
+}
+
+function deloadGuidance(){
+  const block3Sessions = state.sessions.filter(s=>s.block===3 && s.feeling);
+  if(block3Sessions.length<3) return null; // not enough data to advise
+  const avgRpe = block3Sessions.reduce((sum,s)=>sum+(+s.feeling.rpe||0),0)/block3Sessions.length;
+  const painShare = block3Sessions.filter(s=>s.feeling.courbatures==="oui").length/block3Sessions.length;
+  if(avgRpe>=8 || painShare>=0.4){
+    return {ready:false, text:`Fatigue/douleurs élevées en fin de bloc 3 (RPE moyen ${avgRpe.toFixed(1)}/10, courbatures sur ${Math.round(painShare*100)}% des séances) → laisse la semaine 15 en deload complet et vise le retest en semaine 16.`};
+  }
+  return {ready:true, text:`Ressenti stabilisé en fin de bloc 3 (RPE moyen ${avgRpe.toFixed(1)}/10) → tu peux tenter le retest dès la semaine 15 si tu te sens bien.`};
+}
+
 function maxCharge(exName, beforeDate){
   let max=0;
   state.sessions.filter(s=>!beforeDate||s.date<beforeDate).forEach(s=>{
@@ -288,7 +316,9 @@ function initDraftForPlan(plan, existing){
       const existingEx = existing && existing.exercises.find(x=>x.name===e.name);
       const nSets = def.circuit ? def.tours : Math.max(1, Math.round(e.sets*plan.block.volFactor));
       const sets = existingEx ? existingEx.sets : Array.from({length:nSets},()=>({charge:"",reps:""}));
-      return {name:e.name, target:e.reps, sets};
+      const trackRpe = !def.circuit && !/^finisher/i.test(e.name);
+      const rpe = existingEx ? existingEx.rpe : "";
+      return {name:e.name, target:e.reps, sets, trackRpe, rpe};
     });
     return {category:"muscu", variant:plan.variant, exercises, feeling: initFeeling(existing)};
   } else {
@@ -316,12 +346,23 @@ function renderToday(){
   const existing = sessionOn(ds);
   const container = document.getElementById("tab-today");
 
+  const painAlert = recentPainAlert(ds);
+  const alertHtml = painAlert ? `<div class="card" style="border-color:#4a1f1f;background:#1c0f0f;">
+    <div style="color:var(--danger);font-weight:600;font-size:14px;">⚠️ Douleur récurrente : ${painAlert}</div>
+    <div style="color:var(--muted);font-size:13px;margin-top:4px;">Cette zone revient sur plusieurs séances récentes. Envisage d'alléger la charge ou d'en parler à un pro si ça persiste.</div>
+  </div>` : "";
+
   if(plan.category==="rest"){
-    container.innerHTML = `<div class="card rest">
+    const weekHasMeasure = state.measurements.some(m=>isoWeekKey(m.date)===isoWeekKey(ds));
+    container.innerHTML = alertHtml + `<div class="card rest">
       <div class="big">😌</div>
       <h2>Jour de repos</h2>
       <p>Aucune séance prévue aujourd'hui. Profites-en pour récupérer.</p>
+      ${!weekHasMeasure ? `<div class="note-block" style="text-align:left;">⚖️ Pas encore de pesée cette semaine. C'est le bon moment pour noter poids / tour de taille.</div>
+      <button class="btn-secondary" id="goMeasureBtn">Aller à Mesures</button>` : ""}
     </div>`;
+    const goBtn = document.getElementById("goMeasureBtn");
+    if(goBtn) goBtn.addEventListener("click", ()=> document.querySelector('nav.tabs button[data-tab="measures"]').click());
     return;
   }
 
@@ -330,7 +371,13 @@ function renderToday(){
     draft._date = ds;
   }
 
-  let html = `<div class="card">`;
+  let html = alertHtml + `<div class="card">`;
+  if(plan.block.n===4){
+    const guidance = deloadGuidance();
+    if(guidance){
+      html += `<div class="note-block" style="${guidance.ready?"border-color:#1f4a2a;background:#0f1c12;color:var(--accent2);":""}">🧭 ${guidance.text}</div>`;
+    }
+  }
   if(existing){
     html += `<div class="note-block" style="background:#0f1c12;border-color:#1f4a2a;color:var(--accent2);">✅ Séance déjà validée aujourd'hui. Tu peux la modifier ci-dessous et re-valider.</div>`;
   }
@@ -357,6 +404,15 @@ function renderToday(){
           <input type="text" placeholder="reps" value="${st.reps}" data-ex="${exi}" data-set="${si}" data-field="reps" class="fld">
         </div>`;
       });
+      if(ex.trackRpe){
+        html += `<div class="setrow">
+          <span>RPE</span>
+          <select data-ex="${exi}" class="fldRpe" style="width:80px;">
+            <option value="">-</option>
+            ${Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${+ex.rpe===n?"selected":""}>${n}</option>`).join("")}
+          </select>
+        </div>`;
+      }
       html += `</div>`;
     });
   } else {
@@ -411,6 +467,11 @@ function renderToday(){
       draft.exercises[exi].sets[si][field]=e.target.value;
     });
   });
+  container.querySelectorAll(".fldRpe").forEach(inp=>{
+    inp.addEventListener("change", e=>{
+      draft.exercises[+e.target.dataset.ex].rpe = e.target.value;
+    });
+  });
   document.getElementById("fEnergie").addEventListener("change", e=> draft.feeling.energie = e.target.value);
   document.getElementById("fSommeil").addEventListener("change", e=> draft.feeling.sommeil = e.target.value);
   document.getElementById("fRpe").addEventListener("change", e=> draft.feeling.rpe = e.target.value);
@@ -448,7 +509,7 @@ function finishSession(plan, ds, existing){
     block: plan.block.n,
     feeling: draft.feeling,
   };
-  if(plan.category==="muscu") record.exercises = draft.exercises.map(e=>({name:e.name, target:e.target, sets:e.sets}));
+  if(plan.category==="muscu") record.exercises = draft.exercises.map(e=>({name:e.name, target:e.target, sets:e.sets, rpe:e.rpe||""}));
   else record.run = draft.run;
 
   const idx = state.sessions.findIndex(s=>s.date===ds);
@@ -488,7 +549,7 @@ function renderHistory(){
       <div class="hist-title">${badge}</div>`;
     if(s.category==="muscu"){
       html += `<div style="font-size:13px;color:var(--muted);margin-top:4px;">`+
-        s.exercises.map(e=>`${e.name}: ${e.sets.map(st=>`${st.charge||"-"}×${st.reps||"-"}`).join(", ")}`).join("<br>")
+        s.exercises.map(e=>`${e.name}: ${e.sets.map(st=>`${st.charge||"-"}×${st.reps||"-"}`).join(", ")}${e.rpe?` (RPE ${e.rpe})`:""}`).join("<br>")
       +`</div>`;
     } else {
       html += `<div style="font-size:13px;color:var(--muted);margin-top:4px;">${s.run.distance||"-"}km en ${s.run.duree||"-"}min (${s.run.allure||"-"}/km)</div>`;
@@ -556,6 +617,60 @@ function drawLineChart(canvas, points, opts){
   ctx.fillText(fmtDate2(points[0].label), px(points[0].x), h-6);
   ctx.fillText(fmtDate2(points[points.length-1].label), px(points[points.length-1].x), h-6);
 }
+function drawMultiLineChart(canvas, series, opts){
+  opts = opts||{};
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth||300, h = 200;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const active = series.filter(s=>s.points.length>0);
+  if(!active.length){
+    ctx.fillStyle="#9aa3b2"; ctx.font="13px sans-serif"; ctx.textAlign="center";
+    ctx.fillText("Pas encore assez de données", w/2, h/2);
+    return;
+  }
+  const pad = {l:12,r:12,t:28,b:24};
+  const allX = active.flatMap(s=>s.points.map(p=>p.x));
+  const minX=Math.min(...allX), maxX=Math.max(...allX);
+  const xr = (maxX-minX)||1;
+  const px = x => pad.l + (x-minX)/xr*(w-pad.l-pad.r);
+
+  active.forEach(s=>{
+    const ys = s.points.map(p=>p.y);
+    let minY=Math.min(...ys), maxY=Math.max(...ys);
+    if(minY===maxY){ minY-=1; maxY+=1; }
+    const yr = maxY-minY;
+    const py = y => h-pad.b - (y-minY)/yr*(h-pad.t-pad.b);
+    ctx.strokeStyle = s.color; ctx.lineWidth=2;
+    ctx.beginPath();
+    s.points.forEach((p,i)=>{
+      const x=px(p.x), y=py(p.y);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = s.color;
+    s.points.forEach(p=>{ ctx.beginPath(); ctx.arc(px(p.x),py(p.y),3,0,7); ctx.fill(); });
+  });
+
+  // legend
+  let lx = pad.l;
+  ctx.font="11px sans-serif"; ctx.textAlign="left"; ctx.textBaseline="middle";
+  active.forEach(s=>{
+    ctx.fillStyle=s.color;
+    ctx.fillRect(lx, 8, 8, 8);
+    ctx.fillStyle="#9aa3b2";
+    ctx.fillText(s.label, lx+12, 12);
+    lx += ctx.measureText(s.label).width + 30;
+  });
+
+  ctx.fillStyle="#9aa3b2"; ctx.textAlign="center"; ctx.textBaseline="alphabetic";
+  ctx.fillText(fmtDate2(active[0].points[0].label), px(active[0].points[0].x), h-6);
+  const last = active[0].points[active[0].points.length-1];
+  ctx.fillText(fmtDate2(last.label), px(last.x), h-6);
+}
 function fmtDate2(ds){ const d=new Date(ds+"T00:00:00"); return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}); }
 
 function allExerciseNames(){
@@ -587,6 +702,11 @@ function renderProgress(){
       <option value="waist">Tour de taille (cm)</option>
     </select>
     <canvas id="measureChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Bien-être vs charge d'entraînement</h2>
+    <p style="color:var(--muted);font-size:12px;margin:0 0 8px;">Moyennes hebdo (échelles indépendantes) — pour repérer si une baisse de charge coïncide avec un mauvais sommeil/énergie plutôt qu'un vrai plateau.</p>
+    <canvas id="wellbeingChart"></canvas>
   </div>
   <div class="card">
     <h2>Résumé hebdomadaire</h2>
@@ -636,6 +756,38 @@ function renderProgress(){
   }
   redrawMeasureChart();
   document.getElementById("measureSelect").addEventListener("change", redrawMeasureChart);
+
+  // weekly wellbeing vs load
+  (function(){
+    const byWeek = {};
+    state.sessions.forEach(s=>{
+      if(!s.feeling) return;
+      const k = isoWeekKey(s.date);
+      byWeek[k] = byWeek[k] || {energie:[], sommeil:[], loads:[]};
+      byWeek[k].energie.push(+s.feeling.energie||0);
+      byWeek[k].sommeil.push(+s.feeling.sommeil||0);
+      if(s.exercises){
+        const maxes = s.exercises.map(e=>Math.max(0,...e.sets.map(st=>+st.charge||0))).filter(m=>m>0);
+        if(maxes.length) byWeek[k].loads.push(maxes.reduce((a,b)=>a+b,0)/maxes.length);
+      }
+    });
+    const weeks = Object.keys(byWeek).sort();
+    const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+    const energiePts=[], sommeilPts=[], loadPts=[];
+    weeks.forEach(k=>{
+      const w = byWeek[k];
+      const t = new Date(k).getTime();
+      const e = avg(w.energie), s = avg(w.sommeil), l = avg(w.loads);
+      if(e!=null) energiePts.push({x:t,y:e,label:k});
+      if(s!=null) sommeilPts.push({x:t,y:s,label:k});
+      if(l!=null) loadPts.push({x:t,y:l,label:k});
+    });
+    drawMultiLineChart(document.getElementById("wellbeingChart"), [
+      {points:loadPts, color:"#ff6b35", label:"Charge moy."},
+      {points:energiePts, color:"#4ade80", label:"Énergie"},
+      {points:sommeilPts, color:"#60a5fa", label:"Sommeil"}
+    ]);
+  })();
 
   // weekly summary
   const byWeek = {};
