@@ -152,6 +152,23 @@
   footer{text-align:center; margin-top:30px;}
   footer button{background:transparent; color:var(--ice-soft); opacity:0.4; border:none; font-size:11px; text-decoration:underline; cursor:pointer;}
 
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(5,14,23,0.7);
+    align-items:center; justify-content:center; padding:20px; z-index:100;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:linear-gradient(180deg, var(--navy-mid), var(--navy));
+    border:1px solid rgba(143,211,244,0.25);
+    border-radius:14px; padding:22px; max-width:460px; width:100%;
+  }
+  .modal h2{
+    font-family:'Space Grotesk', sans-serif; font-size:15px; margin:0 0 16px 0;
+    text-transform:uppercase; letter-spacing:0.07em; color:var(--ice-soft); font-weight:600;
+  }
+  .modal-actions{display:flex; gap:10px; grid-column:1 / -1; justify-content:flex-end;}
+  .modal-actions .btn-primary{grid-column:auto;}
+
   @media (max-width:640px){
     .wrap{padding:22px 14px 0;}
     header{flex-direction:column; align-items:flex-start;}
@@ -246,6 +263,49 @@
   </div>
 
   <footer><button id="resetBtn">Réinitialiser toutes les données</button></footer>
+</div>
+
+<div class="modal-overlay" id="editOverlay">
+  <div class="modal">
+    <h2>Modifier l'entrée</h2>
+    <form id="editForm">
+      <div class="field">
+        <label>Nom</label>
+        <input type="text" id="eNom" required>
+      </div>
+      <div class="field">
+        <label>Catégorie</label>
+        <select id="eCat">
+          <option value="viande">Viande</option>
+          <option value="poisson">Poisson</option>
+          <option value="gibier">Gibier / vrac</option>
+          <option value="legumes">Légumes</option>
+          <option value="plats">Plats préparés</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantité</label>
+        <input type="text" id="eQte">
+      </div>
+      <div class="field">
+        <label>Date d'entrée</label>
+        <input type="date" id="eDate">
+      </div>
+      <div class="field full" id="eDateSortieField" style="display:none;">
+        <label>Date de sortie</label>
+        <input type="date" id="eDateSortie">
+      </div>
+      <div class="field full">
+        <label>Note (optionnel)</label>
+        <input type="text" id="eNote">
+      </div>
+      <div class="modal-actions field full">
+        <button type="button" class="btn-ghost" id="editCancelBtn">Annuler</button>
+        <button type="submit" class="btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script type="module">
@@ -364,6 +424,7 @@ function render(){
             </div>
             <span class="badge ${level}">${warnLabel(days)}</span>
             <div class="item-actions">
+              <button class="btn-ghost" onclick="openEditModal('${i.id}', 'active')">Modifier</button>
               <button class="btn-ghost" onclick="markOut('${i.id}')">Sortir</button>
               <button class="btn-danger" onclick="deleteItem('${i.id}', 'active')">Suppr.</button>
             </div>
@@ -378,6 +439,7 @@ function render(){
             </div>
             <span class="badge ok">${daysSince(i.date) - daysSince(i.dateSortie)} j au congel</span>
             <div class="item-actions">
+              <button class="btn-ghost" onclick="openEditModal('${i.id}', 'history')">Modifier</button>
               <button class="btn-danger" onclick="deleteItem('${i.id}', 'history')">Suppr.</button>
             </div>
           </div>`;
@@ -413,6 +475,59 @@ window.deleteItem = async function(id, list){
   await saveData();
   render();
 };
+
+let editingId = null;
+let editingList = null;
+
+window.openEditModal = function(id, list){
+  const item = data[list].find(i => i.id === id);
+  if(!item) return;
+  editingId = id;
+  editingList = list;
+  document.getElementById('eNom').value = item.nom;
+  document.getElementById('eCat').value = item.cat;
+  document.getElementById('eQte').value = item.qte || '';
+  document.getElementById('eDate').value = item.date || '';
+  document.getElementById('eNote').value = item.note || '';
+  const dateSortieField = document.getElementById('eDateSortieField');
+  if(list === 'history'){
+    dateSortieField.style.display = '';
+    document.getElementById('eDateSortie').value = item.dateSortie || '';
+  } else {
+    dateSortieField.style.display = 'none';
+  }
+  document.getElementById('editOverlay').classList.add('open');
+};
+
+function closeEditModal(){
+  document.getElementById('editOverlay').classList.remove('open');
+  editingId = null;
+  editingList = null;
+}
+
+document.getElementById('editCancelBtn').addEventListener('click', closeEditModal);
+document.getElementById('editOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'editOverlay') closeEditModal();
+});
+
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nom = document.getElementById('eNom').value.trim();
+  if(!nom || !editingId) return;
+  const item = data[editingList].find(i => i.id === editingId);
+  if(!item) return;
+  item.nom = nom;
+  item.cat = document.getElementById('eCat').value;
+  item.qte = document.getElementById('eQte').value.trim();
+  item.date = document.getElementById('eDate').value || item.date;
+  item.note = document.getElementById('eNote').value.trim();
+  if(editingList === 'history'){
+    item.dateSortie = document.getElementById('eDateSortie').value || item.dateSortie;
+  }
+  closeEditModal();
+  await saveData();
+  render();
+});
 
 document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
