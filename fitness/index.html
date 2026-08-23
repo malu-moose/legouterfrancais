@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Suivi Entraînement — 16 semaines</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Entraînement">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --text:#e8eaed; --muted:#9aa3b2; --accent:#ff6b35; --accent2:#4ade80;
+    --danger:#f87171; --warn:#fbbf24; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:70px;}
+  header.app{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#12141a,#12141aee);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:14px 16px;}
+  header.app h1{margin:0 0 4px;font-size:18px;}
+  .subrow{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted);}
+  .chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:3px 10px;}
+  .chip.accent{color:var(--accent);border-color:#ff6b3555;}
+  .chip.green{color:var(--accent2);border-color:#4ade8055;}
+  main{max-width:640px;margin:0 auto;padding:16px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .card h2{margin:0 0 10px;font-size:16px;}
+  .card h3{margin:16px 0 8px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .ex{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;}
+  .ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .ex-name{font-weight:600;}
+  .ex-target{font-size:13px;color:var(--muted);}
+  .ex-last{font-size:12px;color:var(--accent);margin-top:4px;}
+  .setrow{display:flex;gap:8px;margin-top:8px;align-items:center;}
+  .setrow span{width:52px;font-size:12px;color:var(--muted);}
+  input,textarea,select{background:#11141a;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:14px;width:100%;}
+  input[type=number]{width:80px;}
+  textarea{width:100%;min-height:70px;resize:vertical;}
+  label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;}
+  button{cursor:pointer;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;}
+  .btn-primary{background:var(--accent);color:#1a0c05;width:100%;padding:14px;font-size:15px;}
+  .btn-secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+  .btn-danger{background:#2a1414;color:var(--danger);border:1px solid #4a1f1f;}
+  .btn-small{padding:6px 10px;font-size:12px;}
+  .rest{text-align:center;padding:30px 10px;color:var(--muted);}
+  .rest .big{font-size:40px;}
+  nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);display:flex;z-index:10;}
+  nav.tabs button{flex:1;background:none;border-radius:0;color:var(--muted);padding:10px 4px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:500;}
+  nav.tabs button.active{color:var(--accent);}
+  nav.tabs .ic{font-size:18px;}
+  .tab{display:none;}
+  .tab.active{display:block;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+  .stat .n{font-size:22px;font-weight:700;color:var(--accent);}
+  .stat .l{font-size:11px;color:var(--muted);}
+  .hist-item{border-bottom:1px solid var(--border);padding:10px 0;}
+  .hist-item:last-child{border-bottom:none;}
+  .hist-date{font-size:12px;color:var(--muted);}
+  .hist-title{font-weight:600;}
+  .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--panel2);border:1px solid var(--border);margin-left:6px;}
+  .badge.muscu{color:#60a5fa;border-color:#60a5fa55;}
+  .badge.course{color:#4ade80;border-color:#4ade8055;}
+  canvas{width:100%;background:var(--panel2);border-radius:10px;border:1px solid var(--border);}
+  .note-block{background:#1c1408;border:1px solid #4a340f;color:var(--warn);border-radius:10px;padding:10px;font-size:13px;margin-bottom:12px;}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#04170a;padding:12px 18px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:20;max-width:90%;text-align:center;}
+  .row{display:flex;gap:10px;}
+  .row>*{flex:1;}
+  select#exSelect{margin-bottom:10px;}
+  .empty{color:var(--muted);text-align:center;padding:20px;font-size:14px;}
+  a.instalink{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <h1>💪 Programme 16 semaines</h1>
+  <div class="subrow" id="headerStats"></div>
+</header>
+
+<main>
+  <section id="tab-today" class="tab active"></section>
+  <section id="tab-history" class="tab"></section>
+  <section id="tab-progress" class="tab"></section>
+  <section id="tab-measures" class="tab"></section>
+  <section id="tab-settings" class="tab"></section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="today" class="active"><span class="ic">🏋️</span>Aujourd'hui</button>
+  <button data-tab="history"><span class="ic">📜</span>Historique</button>
+  <button data-tab="progress"><span class="ic">📈</span>Progression</button>
+  <button data-tab="measures"><span class="ic">⚖️</span>Mesures</button>
+  <button data-tab="settings"><span class="ic">⚙️</span>Réglages</button>
+</nav>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- Program data ---------------- */
+
+const MUSCU = {
+  A: {label:"Muscu A — Haut du corps + jambes", circuit:false, exercises:[
+    {name:"Développé couché haltères", sets:4, reps:"8-10"},
+    {name:"Tirage horizontal/vertical (machine)", sets:4, reps:"8-10"},
+    {name:"Squat gobelet haltères", sets:4, reps:"10-12"},
+    {name:"Développé épaules haltères", sets:3, reps:"10"},
+    {name:"Gainage planche", sets:3, reps:"40s"},
+    {name:"Finisher rameur", sets:1, reps:"10min (30s effort/30s facile)"}
+  ]},
+  B: {label:"Muscu B — Jambes + tirage", circuit:false, exercises:[
+    {name:"Fentes haltères", sets:4, reps:"10/jambe"},
+    {name:"Rowing haltère unilatéral sur banc", sets:4, reps:"10/bras"},
+    {name:"Hip thrust lesté", sets:4, reps:"12"},
+    {name:"Machine push (poitrine/épaules)", sets:3, reps:"10"},
+    {name:"Gainage latéral", sets:3, reps:"30s/côté"},
+    {name:"Finisher vélo", sets:1, reps:"15min HIIT"}
+  ]},
+  C: {label:"Muscu C — Circuit métabolique", circuit:true, tours:3, repos:"90s", exercises:[
+    {name:"Squat gobelet/sauté", reps:"12"},
+    {name:"Tirage machine", reps:"10"},
+    {name:"Développé haltères", reps:"10"},
+    {name:"Rowing sur banc", reps:"10"},
+    {name:"Mountain climbers", reps:"30s"},
+    {name:"Rameur", reps:"500m"}
+  ]}
+};
+const MUSCU_ORDER = ["A","B","C"];
+
+const COURSE = {
+  facile: {label:"Course facile", desc:"5-6 km, allure ~6:30-7:00/km"},
+  fractionne: {label:"Course fractionnée", desc:"6-8 x 400m à allure 5km, récup 90s"},
+  longue: {label:"Course longue/tempo", desc:"8-10 km, dernier tiers progressif"}
+};
+const COURSE_ORDER = ["facile","fractionne","longue"];
+
+// day-of-week (JS getDay: 0=Sun..6=Sat) -> category
+const WEEKLY_CALENDAR = {
+  1:"muscu",   // lundi
+  2:"course",  // mardi
+  3:"muscu",   // mercredi
+  4:"course",  // jeudi
+  5:"muscu",   // vendredi
+  6:"course",  // samedi
+  0:"rest"     // dimanche
+};
+
+function getBlock(week){
+  if(week<=4) return {n:1, name:"Adaptation", note:"Charges légères à modérées, RPE 6-7.", volFactor:1, courseNote:""};
+  if(week<=10) return {n:2, name:"Développement", note:"Charges +5-10% vs bloc 1, densité augmentée (repos réduits).", volFactor:1, courseNote:""};
+  if(week<=14) return {n:3, name:"Intensification", note:"Ajoute un drop set sur la dernière série + finisher plus intense.", volFactor:1, courseNote:"Allures plus soutenues si possible."};
+  return {n:4, name:"Deload", note:"Deload : volume -40%. Possibilité de retest sur un exercice clé.", volFactor:0.6, courseNote:"Volume réduit, garder les allures."};
+}
+
+/* ---------------- State ---------------- */
+
+const STORE_KEY = "ffb_state_v1";
+function loadState(){
+  let s;
+  try{ s = JSON.parse(localStorage.getItem(STORE_KEY)||"null"); }catch(e){ s=null; }
+  if(!s){
+    s = { startDate: todayStr(), sessions: [], measurements: [] };
+    saveState(s);
+  }
+  if(!s.sessions) s.sessions=[];
+  if(!s.measurements) s.measurements=[];
+  return s;
+}
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function todayStr(d){ d=d||new Date(); return d.toISOString().slice(0,10); }
+function fmtDate(str){
+  const d=new Date(str+"T00:00:00");
+  return d.toLocaleDateString("fr-FR",{weekday:"short",day:"2-digit",month:"short"});
+}
+function daysBetween(a,b){
+  const A=new Date(a+"T00:00:00"), B=new Date(b+"T00:00:00");
+  return Math.round((B-A)/86400000);
+}
+
+function getWeekNumber(dateStr){
+  const diff = daysBetween(state.startDate, dateStr);
+  const w = Math.floor(diff/7)+1;
+  return Math.min(Math.max(w,1),16);
+}
+
+function rotationVariant(category, beforeDate){
+  // count completed sessions of category strictly before beforeDate (by date+id order)
+  const list = state.sessions
+    .filter(s=>s.category===category)
+    .sort((a,b)=> a.date===b.date ? a.id-b.id : (a.date<b.date?-1:1));
+  const order = category==="muscu" ? MUSCU_ORDER : COURSE_ORDER;
+  return order[list.length % order.length];
+}
+
+function planFor(dateStr){
+  const d = new Date(dateStr+"T00:00:00");
+  const dow = d.getDay();
+  const category = WEEKLY_CALENDAR[dow];
+  const week = getWeekNumber(dateStr);
+  const block = getBlock(week);
+  if(category==="rest") return {category, week, block, dow};
+  const variant = rotationVariant(category, dateStr);
+  return {category, variant, week, block, dow};
+}
+
+function sessionOn(dateStr){
+  return state.sessions.find(s=>s.date===dateStr);
+}
+
+/* ---------------- Streak & stats ---------------- */
+
+function isoWeekKey(dateStr){
+  const d = new Date(dateStr+"T00:00:00");
+  const day = (d.getDay()+6)%7; // Mon=0
+  d.setDate(d.getDate()-day);
+  return d.toISOString().slice(0,10);
+}
+
+function computeStreak(){
+  let streak=0;
+  let cursor = new Date();
+  // if today not done yet, start checking from yesterday, but don't fail because of that
+  for(let i=0;i<400;i++){
+    const ds = todayStr(cursor);
+    const dow = cursor.getDay();
+    if(WEEKLY_CALENDAR[dow]==="rest"){ cursor.setDate(cursor.getDate()-1); continue; }
+    const has = sessionOn(ds);
+    if(has){ streak++; cursor.setDate(cursor.getDate()-1); continue; }
+    if(ds===todayStr()){ cursor.setDate(cursor.getDate()-1); continue; } // today may not be done yet, skip without breaking
+    break;
+  }
+  return streak;
+}
+
+function sessionsThisWeek(){
+  const key = isoWeekKey(todayStr());
+  return state.sessions.filter(s=> isoWeekKey(s.date)===key).length;
+}
+
+function lastPerformance(exName, beforeDate){
+  const list = state.sessions
+    .filter(s=>s.date<beforeDate && s.exercises && s.exercises.some(e=>e.name===exName))
+    .sort((a,b)=> a.date<b.date?1:-1);
+  if(!list.length) return null;
+  const s = list[0];
+  const ex = s.exercises.find(e=>e.name===exName);
+  const best = (ex.sets||[]).filter(x=>x.charge||x.reps).slice(-1)[0];
+  return {date:s.date, sets:ex.sets||[]};
+}
+
+function recentPainAlert(beforeDate){
+  // look at the last 5 logged sessions before/including today; flag a zone mentioned in >=2 of them
+  const list = state.sessions
+    .filter(s=>s.date<=beforeDate && s.feeling && s.feeling.courbatures==="oui" && s.feeling.courbaturesZone)
+    .sort((a,b)=> a.date<b.date?1:-1)
+    .slice(0,5);
+  const counts = {};
+  list.forEach(s=>{
+    s.feeling.courbaturesZone.split(/[,;/]/).map(z=>z.trim().toLowerCase()).filter(Boolean).forEach(zone=>{
+      counts[zone] = (counts[zone]||0)+1;
+    });
+  });
+  const flagged = Object.entries(counts).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]);
+  if(!flagged.length) return null;
+  return flagged.map(([zone,n])=>`${zone} (${n}x)`).join(", ");
+}
+
+function deloadGuidance(){
+  const block3Sessions = state.sessions.filter(s=>s.block===3 && s.feeling);
+  if(block3Sessions.length<3) return null; // not enough data to advise
+  const avgRpe = block3Sessions.reduce((sum,s)=>sum+(+s.feeling.rpe||0),0)/block3Sessions.length;
+  const painShare = block3Sessions.filter(s=>s.feeling.courbatures==="oui").length/block3Sessions.length;
+  if(avgRpe>=8 || painShare>=0.4){
+    return {ready:false, text:`Fatigue/douleurs élevées en fin de bloc 3 (RPE moyen ${avgRpe.toFixed(1)}/10, courbatures sur ${Math.round(painShare*100)}% des séances) → laisse la semaine 15 en deload complet et vise le retest en semaine 16.`};
+  }
+  return {ready:true, text:`Ressenti stabilisé en fin de bloc 3 (RPE moyen ${avgRpe.toFixed(1)}/10) → tu peux tenter le retest dès la semaine 15 si tu te sens bien.`};
+}
+
+function maxCharge(exName, beforeDate){
+  let max=0;
+  state.sessions.filter(s=>!beforeDate||s.date<beforeDate).forEach(s=>{
+    (s.exercises||[]).forEach(e=>{
+      if(e.name===exName) (e.sets||[]).forEach(st=>{ if(st.charge && +st.charge>max) max=+st.charge; });
+    });
+  });
+  return max;
+}
+
+/* ---------------- UI: Today ---------------- */
+
+let draft = null; // in-progress form state for today
+
+function renderHeader(){
+  const week = getWeekNumber(todayStr());
+  const block = getBlock(week);
+  const el = document.getElementById("headerStats");
+  el.innerHTML = `
+    <span class="chip accent">Semaine ${week}/16</span>
+    <span class="chip">Bloc ${block.n} · ${block.name}</span>
+    <span class="chip green">🔥 ${computeStreak()} jours</span>
+    <span class="chip">${sessionsThisWeek()} séances cette semaine</span>
+  `;
+}
+
+function initDraftForPlan(plan, existing){
+  if(plan.category==="muscu"){
+    const def = MUSCU[plan.variant];
+    const exercises = def.exercises.map(e=>{
+      const existingEx = existing && existing.exercises.find(x=>x.name===e.name);
+      const nSets = def.circuit ? def.tours : Math.max(1, Math.round(e.sets*plan.block.volFactor));
+      const sets = existingEx ? existingEx.sets : Array.from({length:nSets},()=>({charge:"",reps:""}));
+      const trackRpe = !def.circuit && !/^finisher/i.test(e.name);
+      const rpe = existingEx ? existingEx.rpe : "";
+      return {name:e.name, target:e.reps, sets, trackRpe, rpe};
+    });
+    return {category:"muscu", variant:plan.variant, exercises, feeling: initFeeling(existing)};
+  } else {
+    const def = COURSE[plan.variant];
+    const run = existing? existing.run : {distance:"",duree:"",allure:""};
+    return {category:"course", variant:plan.variant, run, feeling: initFeeling(existing)};
+  }
+}
+
+function initFeeling(existing){
+  const f = existing && existing.feeling;
+  return {
+    energie: f? f.energie : "3",
+    sommeil: f? f.sommeil : "3",
+    courbatures: f? f.courbatures : "non",
+    courbaturesZone: f? f.courbaturesZone : "",
+    rpe: f? f.rpe : "5",
+    notes: f? f.notes : ""
+  };
+}
+
+function renderToday(){
+  const ds = todayStr();
+  const plan = planFor(ds);
+  const existing = sessionOn(ds);
+  const container = document.getElementById("tab-today");
+
+  const painAlert = recentPainAlert(ds);
+  const alertHtml = painAlert ? `<div class="card" style="border-color:#4a1f1f;background:#1c0f0f;">
+    <div style="color:var(--danger);font-weight:600;font-size:14px;">⚠️ Douleur récurrente : ${painAlert}</div>
+    <div style="color:var(--muted);font-size:13px;margin-top:4px;">Cette zone revient sur plusieurs séances récentes. Envisage d'alléger la charge ou d'en parler à un pro si ça persiste.</div>
+  </div>` : "";
+
+  if(plan.category==="rest"){
+    const weekHasMeasure = state.measurements.some(m=>isoWeekKey(m.date)===isoWeekKey(ds));
+    container.innerHTML = alertHtml + `<div class="card rest">
+      <div class="big">😌</div>
+      <h2>Jour de repos</h2>
+      <p>Aucune séance prévue aujourd'hui. Profites-en pour récupérer.</p>
+      ${!weekHasMeasure ? `<div class="note-block" style="text-align:left;">⚖️ Pas encore de pesée cette semaine. C'est le bon moment pour noter poids / tour de taille.</div>
+      <button class="btn-secondary" id="goMeasureBtn">Aller à Mesures</button>` : ""}
+    </div>`;
+    const goBtn = document.getElementById("goMeasureBtn");
+    if(goBtn) goBtn.addEventListener("click", ()=> document.querySelector('nav.tabs button[data-tab="measures"]').click());
+    return;
+  }
+
+  if(!draft || draft._date!==ds){
+    draft = initDraftForPlan(plan, existing);
+    draft._date = ds;
+  }
+
+  let html = alertHtml + `<div class="card">`;
+  if(plan.block.n===4){
+    const guidance = deloadGuidance();
+    if(guidance){
+      html += `<div class="note-block" style="${guidance.ready?"border-color:#1f4a2a;background:#0f1c12;color:var(--accent2);":""}">🧭 ${guidance.text}</div>`;
+    }
+  }
+  if(existing){
+    html += `<div class="note-block" style="background:#0f1c12;border-color:#1f4a2a;color:var(--accent2);">✅ Séance déjà validée aujourd'hui. Tu peux la modifier ci-dessous et re-valider.</div>`;
+  }
+
+  if(plan.category==="muscu"){
+    const def = MUSCU[plan.variant];
+    html += `<h2>${def.label} <span class="badge muscu">Muscu ${plan.variant}</span></h2>`;
+    html += `<div class="note-block">Bloc ${plan.block.n} (${plan.block.name}) : ${plan.block.note}</div>`;
+    if(def.circuit) html += `<p style="color:var(--muted);font-size:13px;">${def.tours} tours, repos ${def.repos} entre les tours.</p>`;
+
+    draft.exercises.forEach((ex, exi)=>{
+      const last = lastPerformance(ex.name, ds);
+      html += `<div class="ex">
+        <div class="ex-head">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-target">${def.circuit? (ex.sets.length+" tours"): (ex.sets.length+"x"+ex.target)}</div>
+        </div>
+        ${last? `<div class="ex-last">Dernière fois (${fmtDate(last.date)}) : ${last.sets.map(s=>`${s.charge||"-"}kg×${s.reps||"-"}`).join(", ")}</div>`:""}
+      `;
+      ex.sets.forEach((st,si)=>{
+        html += `<div class="setrow">
+          <span>${def.circuit?("Tour "+(si+1)):("Série "+(si+1))}</span>
+          <input type="number" step="0.5" placeholder="kg" value="${st.charge}" data-ex="${exi}" data-set="${si}" data-field="charge" class="fld">
+          <input type="text" placeholder="reps" value="${st.reps}" data-ex="${exi}" data-set="${si}" data-field="reps" class="fld">
+        </div>`;
+      });
+      if(ex.trackRpe){
+        html += `<div class="setrow">
+          <span>RPE</span>
+          <select data-ex="${exi}" class="fldRpe" style="width:80px;">
+            <option value="">-</option>
+            ${Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${+ex.rpe===n?"selected":""}>${n}</option>`).join("")}
+          </select>
+        </div>`;
+      }
+      html += `</div>`;
+    });
+  } else {
+    const def = COURSE[plan.variant];
+    html += `<h2>${def.label} <span class="badge course">Course</span></h2>`;
+    html += `<div class="note-block">Bloc ${plan.block.n} (${plan.block.name}). ${plan.block.courseNote||""}</div>`;
+    html += `<p style="color:var(--muted);font-size:14px;">Objectif : ${def.desc}</p>`;
+    html += `<div class="row" style="margin-top:10px;">
+      <div><label class="small">Distance (km)</label><input type="number" step="0.1" id="runDist" value="${draft.run.distance}"></div>
+      <div><label class="small">Durée (min)</label><input type="number" step="1" id="runDur" value="${draft.run.duree}"></div>
+      <div><label class="small">Allure (min/km)</label><input type="text" id="runPace" placeholder="ex 6:45" value="${draft.run.allure}"></div>
+    </div>`;
+    const lastRun = state.sessions.filter(s=>s.category==="course" && s.variant===plan.variant && s.date<ds).sort((a,b)=>a.date<b.date?1:-1)[0];
+    if(lastRun) html += `<div class="ex-last" style="margin-top:8px;">Dernière fois (${fmtDate(lastRun.date)}) : ${lastRun.run.distance||"-"}km en ${lastRun.run.duree||"-"}min (${lastRun.run.allure||"-"}/km)</div>`;
+  }
+
+  const f = draft.feeling;
+  html += `<h3>Fiche ressenti</h3>
+    <div class="row">
+      <div><label class="small">Énergie avant séance (1-5)</label>
+        <select id="fEnergie">${[1,2,3,4,5].map(n=>`<option value="${n}" ${+f.energie===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+      <div><label class="small">Qualité du sommeil (1-5)</label>
+        <select id="fSommeil">${[1,2,3,4,5].map(n=>`<option value="${n}" ${+f.sommeil===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div><label class="small">Courbatures / douleurs</label>
+        <select id="fCourbatures">
+          <option value="non" ${f.courbatures==="non"?"selected":""}>Non</option>
+          <option value="oui" ${f.courbatures==="oui"?"selected":""}>Oui</option>
+        </select>
+      </div>
+      <div id="fZoneWrap" style="${f.courbatures==="oui"?"":"display:none;"}">
+        <label class="small">Zone</label>
+        <input type="text" id="fZone" placeholder="ex: épaules, mollets" value="${f.courbaturesZone||""}">
+      </div>
+      <div><label class="small">RPE global (1-10)</label>
+        <select id="fRpe">${Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${+f.rpe===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+    </div>
+    <label class="small" style="margin-top:10px;">Notes libres</label>
+    <textarea id="sessNotes" placeholder="Contexte additionnel...">${f.notes||""}</textarea>
+  </div>
+  <button class="btn-primary" id="finishBtn">✅ Terminer la séance</button>
+  `;
+  container.innerHTML = html;
+
+  container.querySelectorAll(".fld").forEach(inp=>{
+    inp.addEventListener("input", e=>{
+      const exi=+e.target.dataset.ex, si=+e.target.dataset.set, field=e.target.dataset.field;
+      draft.exercises[exi].sets[si][field]=e.target.value;
+    });
+  });
+  container.querySelectorAll(".fldRpe").forEach(inp=>{
+    inp.addEventListener("change", e=>{
+      draft.exercises[+e.target.dataset.ex].rpe = e.target.value;
+    });
+  });
+  document.getElementById("fEnergie").addEventListener("change", e=> draft.feeling.energie = e.target.value);
+  document.getElementById("fSommeil").addEventListener("change", e=> draft.feeling.sommeil = e.target.value);
+  document.getElementById("fRpe").addEventListener("change", e=> draft.feeling.rpe = e.target.value);
+  document.getElementById("fCourbatures").addEventListener("change", e=>{
+    draft.feeling.courbatures = e.target.value;
+    document.getElementById("fZoneWrap").style.display = e.target.value==="oui" ? "" : "none";
+  });
+  document.getElementById("fZone").addEventListener("input", e=> draft.feeling.courbaturesZone = e.target.value);
+  const notesEl = document.getElementById("sessNotes");
+  if(notesEl) notesEl.addEventListener("input", e=> draft.feeling.notes = e.target.value);
+  const rd=document.getElementById("runDist"), rdu=document.getElementById("runDur"), rp=document.getElementById("runPace");
+  if(rd){
+    rd.addEventListener("input", e=>draft.run.distance=e.target.value);
+    rdu.addEventListener("input", e=>draft.run.duree=e.target.value);
+    rp.addEventListener("input", e=>draft.run.allure=e.target.value);
+  }
+  document.getElementById("finishBtn").addEventListener("click", ()=>finishSession(plan, ds, existing));
+}
+
+function finishSession(plan, ds, existing){
+  let recordBeaten = null;
+  if(plan.category==="muscu"){
+    draft.exercises.forEach(ex=>{
+      const prevMax = maxCharge(ex.name, ds);
+      const curMax = Math.max(0,...ex.sets.map(s=>+s.charge||0));
+      if(curMax>prevMax && curMax>0) recordBeaten = ex.name;
+    });
+  }
+  const record = {
+    id: existing? existing.id : Date.now(),
+    date: ds,
+    category: plan.category,
+    variant: plan.variant,
+    week: plan.week,
+    block: plan.block.n,
+    feeling: draft.feeling,
+  };
+  if(plan.category==="muscu") record.exercises = draft.exercises.map(e=>({name:e.name, target:e.target, sets:e.sets, rpe:e.rpe||""}));
+  else record.run = draft.run;
+
+  const idx = state.sessions.findIndex(s=>s.date===ds);
+  if(idx>=0) state.sessions[idx]=record; else state.sessions.push(record);
+  saveState(state);
+  draft=null;
+
+  const wk = sessionsThisWeek();
+  let msg = `Séance enregistrée ! ${wk} séance${wk>1?"s":""} cette semaine.`;
+  if(recordBeaten) msg += ` 🏆 Record battu sur "${recordBeaten}" !`;
+  showToast(msg);
+  renderAll();
+}
+
+function showToast(msg){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+/* ---------------- UI: History ---------------- */
+
+function renderHistory(){
+  const container = document.getElementById("tab-history");
+  const sessions = [...state.sessions].sort((a,b)=>a.date<b.date?1:-1);
+  if(!sessions.length){
+    container.innerHTML = `<div class="card empty">Aucune séance enregistrée pour l'instant.</div>`;
+    return;
+  }
+  let html = `<div class="card"><h2>Historique</h2>`;
+  sessions.forEach(s=>{
+    const badge = s.category==="muscu"? `<span class="badge muscu">Muscu ${s.variant}</span>` : `<span class="badge course">${COURSE[s.variant].label}</span>`;
+    html += `<div class="hist-item">
+      <div class="hist-date">${fmtDate(s.date)} · Semaine ${s.week} · Bloc ${s.block}</div>
+      <div class="hist-title">${badge}</div>`;
+    if(s.category==="muscu"){
+      html += `<div style="font-size:13px;color:var(--muted);margin-top:4px;">`+
+        s.exercises.map(e=>`${e.name}: ${e.sets.map(st=>`${st.charge||"-"}×${st.reps||"-"}`).join(", ")}${e.rpe?` (RPE ${e.rpe})`:""}`).join("<br>")
+      +`</div>`;
+    } else {
+      html += `<div style="font-size:13px;color:var(--muted);margin-top:4px;">${s.run.distance||"-"}km en ${s.run.duree||"-"}min (${s.run.allure||"-"}/km)</div>`;
+    }
+    if(s.feeling){
+      const f = s.feeling;
+      html += `<div style="font-size:12px;color:var(--muted);margin-top:4px;">
+        ⚡ Énergie ${f.energie}/5 · 😴 Sommeil ${f.sommeil}/5 · RPE ${f.rpe}/10
+        ${f.courbatures==="oui"? ` · 🩹 Courbatures (${f.courbaturesZone||"zone non précisée"})`:""}
+      </div>`;
+      if(f.notes) html += `<div style="font-size:12px;color:var(--warn);margin-top:2px;">📝 ${f.notes}</div>`;
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+/* ---------------- UI: Progress (charts) ---------------- */
+
+function drawLineChart(canvas, points, opts){
+  opts = opts||{};
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth||300, h = 180;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  if(points.length===0){
+    ctx.fillStyle="#9aa3b2"; ctx.font="13px sans-serif"; ctx.textAlign="center";
+    ctx.fillText("Pas encore de données", w/2, h/2);
+    return;
+  }
+  const pad = {l:40,r:12,t:14,b:24};
+  const xs = points.map(p=>p.x), ys = points.map(p=>p.y);
+  const minX=Math.min(...xs), maxX=Math.max(...xs);
+  let minY=Math.min(...ys), maxY=Math.max(...ys);
+  if(minY===maxY){ minY-=1; maxY+=1; }
+  const xr = (maxX-minX)||1, yr=(maxY-minY)||1;
+  const px = x => pad.l + (x-minX)/xr*(w-pad.l-pad.r);
+  const py = y => h-pad.b - (y-minY)/yr*(h-pad.t-pad.b);
+
+  ctx.strokeStyle="#2a2f3a"; ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){
+    const yy = pad.t + i*(h-pad.t-pad.b)/3;
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(w-pad.r,yy); ctx.stroke();
+  }
+  ctx.fillStyle="#9aa3b2"; ctx.font="10px sans-serif"; ctx.textAlign="right";
+  ctx.fillText(maxY.toFixed(1), pad.l-4, pad.t+4);
+  ctx.fillText(minY.toFixed(1), pad.l-4, h-pad.b);
+
+  ctx.strokeStyle = opts.color || "#ff6b35";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  points.forEach((p,i)=>{
+    const x=px(p.x), y=py(p.y);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = opts.color || "#ff6b35";
+  points.forEach(p=>{
+    ctx.beginPath(); ctx.arc(px(p.x),py(p.y),3,0,7); ctx.fill();
+  });
+  ctx.fillStyle="#9aa3b2"; ctx.textAlign="center";
+  ctx.fillText(fmtDate2(points[0].label), px(points[0].x), h-6);
+  ctx.fillText(fmtDate2(points[points.length-1].label), px(points[points.length-1].x), h-6);
+}
+function drawMultiLineChart(canvas, series, opts){
+  opts = opts||{};
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth||300, h = 200;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const active = series.filter(s=>s.points.length>0);
+  if(!active.length){
+    ctx.fillStyle="#9aa3b2"; ctx.font="13px sans-serif"; ctx.textAlign="center";
+    ctx.fillText("Pas encore assez de données", w/2, h/2);
+    return;
+  }
+  const pad = {l:12,r:12,t:28,b:24};
+  const allX = active.flatMap(s=>s.points.map(p=>p.x));
+  const minX=Math.min(...allX), maxX=Math.max(...allX);
+  const xr = (maxX-minX)||1;
+  const px = x => pad.l + (x-minX)/xr*(w-pad.l-pad.r);
+
+  active.forEach(s=>{
+    const ys = s.points.map(p=>p.y);
+    let minY=Math.min(...ys), maxY=Math.max(...ys);
+    if(minY===maxY){ minY-=1; maxY+=1; }
+    const yr = maxY-minY;
+    const py = y => h-pad.b - (y-minY)/yr*(h-pad.t-pad.b);
+    ctx.strokeStyle = s.color; ctx.lineWidth=2;
+    ctx.beginPath();
+    s.points.forEach((p,i)=>{
+      const x=px(p.x), y=py(p.y);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = s.color;
+    s.points.forEach(p=>{ ctx.beginPath(); ctx.arc(px(p.x),py(p.y),3,0,7); ctx.fill(); });
+  });
+
+  // legend
+  let lx = pad.l;
+  ctx.font="11px sans-serif"; ctx.textAlign="left"; ctx.textBaseline="middle";
+  active.forEach(s=>{
+    ctx.fillStyle=s.color;
+    ctx.fillRect(lx, 8, 8, 8);
+    ctx.fillStyle="#9aa3b2";
+    ctx.fillText(s.label, lx+12, 12);
+    lx += ctx.measureText(s.label).width + 30;
+  });
+
+  ctx.fillStyle="#9aa3b2"; ctx.textAlign="center"; ctx.textBaseline="alphabetic";
+  ctx.fillText(fmtDate2(active[0].points[0].label), px(active[0].points[0].x), h-6);
+  const last = active[0].points[active[0].points.length-1];
+  ctx.fillText(fmtDate2(last.label), px(last.x), h-6);
+}
+function fmtDate2(ds){ const d=new Date(ds+"T00:00:00"); return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}); }
+
+function allExerciseNames(){
+  const set = new Set();
+  state.sessions.forEach(s=> (s.exercises||[]).forEach(e=>set.add(e.name)));
+  return [...set];
+}
+
+function renderProgress(){
+  const container = document.getElementById("tab-progress");
+  const names = allExerciseNames();
+  let html = `<div class="card">
+    <h2>Charge par exercice</h2>
+    ${names.length? `<select id="exSelect">${names.map(n=>`<option value="${n}">${n}</option>`).join("")}</select>`:""}
+    <canvas id="exChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Course — allure & distance</h2>
+    <select id="courseSelect">
+      <option value="distance">Distance (km)</option>
+      <option value="pace">Allure (min/km)</option>
+    </select>
+    <canvas id="courseChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Poids & tour de taille</h2>
+    <select id="measureSelect">
+      <option value="weight">Poids (kg)</option>
+      <option value="waist">Tour de taille (cm)</option>
+    </select>
+    <canvas id="measureChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Bien-être vs charge d'entraînement</h2>
+    <p style="color:var(--muted);font-size:12px;margin:0 0 8px;">Moyennes hebdo (échelles indépendantes) — pour repérer si une baisse de charge coïncide avec un mauvais sommeil/énergie plutôt qu'un vrai plateau.</p>
+    <canvas id="wellbeingChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Résumé hebdomadaire</h2>
+    <div id="weekSummary"></div>
+  </div>`;
+  container.innerHTML = html;
+
+  function redrawExChart(){
+    const name = document.getElementById("exSelect")?.value;
+    let pts = [];
+    if(name){
+      state.sessions.filter(s=>s.exercises && s.exercises.some(e=>e.name===name)).sort((a,b)=>a.date<b.date?-1:1).forEach(s=>{
+        const ex = s.exercises.find(e=>e.name===name);
+        const max = Math.max(0,...ex.sets.map(st=>+st.charge||0));
+        if(max>0) pts.push({x:new Date(s.date).getTime(), y:max, label:s.date});
+      });
+    }
+    drawLineChart(document.getElementById("exChart"), pts, {color:"#ff6b35"});
+  }
+  redrawExChart();
+  document.getElementById("exSelect")?.addEventListener("change", redrawExChart);
+
+  function redrawCourseChart(){
+    const mode = document.getElementById("courseSelect").value;
+    let pts=[];
+    state.sessions.filter(s=>s.category==="course").sort((a,b)=>a.date<b.date?-1:1).forEach(s=>{
+      let y=null;
+      if(mode==="distance") y = +s.run.distance||null;
+      else {
+        const p = s.run.allure;
+        if(p && p.includes(":")){ const [m,sec]=p.split(":").map(Number); y=m+sec/60; }
+      }
+      if(y!=null) pts.push({x:new Date(s.date).getTime(), y, label:s.date});
+    });
+    drawLineChart(document.getElementById("courseChart"), pts, {color:"#4ade80"});
+  }
+  redrawCourseChart();
+  document.getElementById("courseSelect").addEventListener("change", redrawCourseChart);
+
+  function redrawMeasureChart(){
+    const mode = document.getElementById("measureSelect").value;
+    let pts = state.measurements
+      .filter(m=>m[mode]!=null && m[mode]!=="")
+      .sort((a,b)=>a.date<b.date?-1:1)
+      .map(m=>({x:new Date(m.date).getTime(), y:+m[mode], label:m.date}));
+    drawLineChart(document.getElementById("measureChart"), pts, {color:"#60a5fa"});
+  }
+  redrawMeasureChart();
+  document.getElementById("measureSelect").addEventListener("change", redrawMeasureChart);
+
+  // weekly wellbeing vs load
+  (function(){
+    const byWeek = {};
+    state.sessions.forEach(s=>{
+      if(!s.feeling) return;
+      const k = isoWeekKey(s.date);
+      byWeek[k] = byWeek[k] || {energie:[], sommeil:[], loads:[]};
+      byWeek[k].energie.push(+s.feeling.energie||0);
+      byWeek[k].sommeil.push(+s.feeling.sommeil||0);
+      if(s.exercises){
+        const maxes = s.exercises.map(e=>Math.max(0,...e.sets.map(st=>+st.charge||0))).filter(m=>m>0);
+        if(maxes.length) byWeek[k].loads.push(maxes.reduce((a,b)=>a+b,0)/maxes.length);
+      }
+    });
+    const weeks = Object.keys(byWeek).sort();
+    const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+    const energiePts=[], sommeilPts=[], loadPts=[];
+    weeks.forEach(k=>{
+      const w = byWeek[k];
+      const t = new Date(k).getTime();
+      const e = avg(w.energie), s = avg(w.sommeil), l = avg(w.loads);
+      if(e!=null) energiePts.push({x:t,y:e,label:k});
+      if(s!=null) sommeilPts.push({x:t,y:s,label:k});
+      if(l!=null) loadPts.push({x:t,y:l,label:k});
+    });
+    drawMultiLineChart(document.getElementById("wellbeingChart"), [
+      {points:loadPts, color:"#ff6b35", label:"Charge moy."},
+      {points:energiePts, color:"#4ade80", label:"Énergie"},
+      {points:sommeilPts, color:"#60a5fa", label:"Sommeil"}
+    ]);
+  })();
+
+  // weekly summary
+  const byWeek = {};
+  state.sessions.forEach(s=>{
+    const k = isoWeekKey(s.date);
+    byWeek[k] = byWeek[k]||{muscu:0,course:0};
+    byWeek[k][s.category]++;
+  });
+  const weeks = Object.keys(byWeek).sort().reverse().slice(0,8);
+  document.getElementById("weekSummary").innerHTML = weeks.length? weeks.map(k=>{
+    const w = byWeek[k];
+    return `<div class="grid2" style="margin-bottom:8px;"><div class="stat"><div class="n">${w.muscu}</div><div class="l">Muscu · sem. du ${fmtDate2(k)}</div></div><div class="stat"><div class="n">${w.course}</div><div class="l">Course · sem. du ${fmtDate2(k)}</div></div></div>`;
+  }).join("") : `<div class="empty">Pas encore de données</div>`;
+}
+
+/* ---------------- UI: Measures ---------------- */
+
+function renderMeasures(){
+  const container = document.getElementById("tab-measures");
+  let html = `<div class="card">
+    <h2>Nouvelle mesure</h2>
+    <div class="row">
+      <div><label class="small">Date</label><input type="date" id="mDate" value="${todayStr()}"></div>
+      <div><label class="small">Poids (kg)</label><input type="number" step="0.1" id="mWeight"></div>
+      <div><label class="small">Tour de taille (cm)</label><input type="number" step="0.5" id="mWaist"></div>
+    </div>
+    <button class="btn-secondary" id="addMeasureBtn" style="margin-top:10px;width:100%;">Ajouter la mesure</button>
+  </div>
+  <div class="card">
+    <h2>Historique des mesures</h2>
+    <div id="measureList"></div>
+  </div>`;
+  container.innerHTML = html;
+  document.getElementById("addMeasureBtn").addEventListener("click", ()=>{
+    const date = document.getElementById("mDate").value || todayStr();
+    const weight = document.getElementById("mWeight").value;
+    const waist = document.getElementById("mWaist").value;
+    if(!weight && !waist){ showToast("Renseigne au moins une valeur"); return; }
+    const idx = state.measurements.findIndex(m=>m.date===date);
+    const rec = {date, weight: weight||"", waist: waist||""};
+    if(idx>=0) state.measurements[idx]=rec; else state.measurements.push(rec);
+    saveState(state);
+    showToast("Mesure enregistrée");
+    renderMeasures();
+  });
+  const list = [...state.measurements].sort((a,b)=>a.date<b.date?1:-1);
+  document.getElementById("measureList").innerHTML = list.length ? list.map(m=>
+    `<div class="hist-item"><div class="hist-date">${fmtDate(m.date)}</div><div>${m.weight?`Poids: ${m.weight}kg`:""} ${m.waist?` · Taille: ${m.waist}cm`:""}</div></div>`
+  ).join("") : `<div class="empty">Aucune mesure enregistrée</div>`;
+}
+
+/* ---------------- UI: Settings ---------------- */
+
+function renderSettings(){
+  const container = document.getElementById("tab-settings");
+  container.innerHTML = `<div class="card">
+    <h2>Programme</h2>
+    <label class="small">Date de début du programme (Semaine 1, Jour 1)</label>
+    <input type="date" id="startDateInput" value="${state.startDate}">
+    <button class="btn-secondary" id="saveStartBtn" style="margin-top:10px;">Enregistrer</button>
+    <p style="color:var(--muted);font-size:13px;margin-top:10px;">Bloc 1 (S1-4) Adaptation · Bloc 2 (S5-10) Développement · Bloc 3 (S11-14) Intensification · Bloc 4 (S15-16) Deload</p>
+  </div>
+  <div class="card">
+    <h2>Données</h2>
+    <p style="color:var(--muted);font-size:13px;">Toutes les données sont stockées uniquement sur cet appareil (localStorage), aucun compte ni serveur.</p>
+    <div class="row">
+      <button class="btn-secondary" id="exportBtn">Exporter (JSON)</button>
+      <button class="btn-danger" id="resetBtn">Réinitialiser</button>
+    </div>
+  </div>`;
+  document.getElementById("saveStartBtn").addEventListener("click", ()=>{
+    state.startDate = document.getElementById("startDateInput").value;
+    saveState(state);
+    showToast("Date de début enregistrée");
+    renderAll();
+  });
+  document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "entrainement-export.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(confirm("Supprimer toutes les données enregistrées ? Cette action est irréversible.")){
+      localStorage.removeItem(STORE_KEY);
+      state = loadState();
+      showToast("Données réinitialisées");
+      renderAll();
+    }
+  });
+}
+
+/* ---------------- Tabs & init ---------------- */
+
+function renderAll(){
+  renderHeader();
+  renderToday();
+  renderHistory();
+  renderProgress();
+  renderMeasures();
+  renderSettings();
+}
+
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+    if(btn.dataset.tab==="progress") renderProgress();
+  });
+});
+
+renderAll();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+})();
+</script>
+</body>
+</html>
