@@ -290,12 +290,24 @@ function initDraftForPlan(plan, existing){
       const sets = existingEx ? existingEx.sets : Array.from({length:nSets},()=>({charge:"",reps:""}));
       return {name:e.name, target:e.reps, sets};
     });
-    return {category:"muscu", variant:plan.variant, exercises, notes: existing?existing.notes:""};
+    return {category:"muscu", variant:plan.variant, exercises, feeling: initFeeling(existing)};
   } else {
     const def = COURSE[plan.variant];
     const run = existing? existing.run : {distance:"",duree:"",allure:""};
-    return {category:"course", variant:plan.variant, run, notes: existing?existing.notes:""};
+    return {category:"course", variant:plan.variant, run, feeling: initFeeling(existing)};
   }
+}
+
+function initFeeling(existing){
+  const f = existing && existing.feeling;
+  return {
+    energie: f? f.energie : "3",
+    sommeil: f? f.sommeil : "3",
+    courbatures: f? f.courbatures : "non",
+    courbaturesZone: f? f.courbaturesZone : "",
+    rpe: f? f.rpe : "5",
+    notes: f? f.notes : ""
+  };
 }
 
 function renderToday(){
@@ -361,8 +373,33 @@ function renderToday(){
     if(lastRun) html += `<div class="ex-last" style="margin-top:8px;">Dernière fois (${fmtDate(lastRun.date)}) : ${lastRun.run.distance||"-"}km en ${lastRun.run.duree||"-"}min (${lastRun.run.allure||"-"}/km)</div>`;
   }
 
-  html += `<h3>Notes de séance</h3>
-    <textarea id="sessNotes" placeholder="Ressenti, douleur, fatigue...">${draft.notes||""}</textarea>
+  const f = draft.feeling;
+  html += `<h3>Fiche ressenti</h3>
+    <div class="row">
+      <div><label class="small">Énergie avant séance (1-5)</label>
+        <select id="fEnergie">${[1,2,3,4,5].map(n=>`<option value="${n}" ${+f.energie===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+      <div><label class="small">Qualité du sommeil (1-5)</label>
+        <select id="fSommeil">${[1,2,3,4,5].map(n=>`<option value="${n}" ${+f.sommeil===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div><label class="small">Courbatures / douleurs</label>
+        <select id="fCourbatures">
+          <option value="non" ${f.courbatures==="non"?"selected":""}>Non</option>
+          <option value="oui" ${f.courbatures==="oui"?"selected":""}>Oui</option>
+        </select>
+      </div>
+      <div id="fZoneWrap" style="${f.courbatures==="oui"?"":"display:none;"}">
+        <label class="small">Zone</label>
+        <input type="text" id="fZone" placeholder="ex: épaules, mollets" value="${f.courbaturesZone||""}">
+      </div>
+      <div><label class="small">RPE global (1-10)</label>
+        <select id="fRpe">${Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${+f.rpe===n?"selected":""}>${n}</option>`).join("")}</select>
+      </div>
+    </div>
+    <label class="small" style="margin-top:10px;">Notes libres</label>
+    <textarea id="sessNotes" placeholder="Contexte additionnel...">${f.notes||""}</textarea>
   </div>
   <button class="btn-primary" id="finishBtn">✅ Terminer la séance</button>
   `;
@@ -374,8 +411,16 @@ function renderToday(){
       draft.exercises[exi].sets[si][field]=e.target.value;
     });
   });
+  document.getElementById("fEnergie").addEventListener("change", e=> draft.feeling.energie = e.target.value);
+  document.getElementById("fSommeil").addEventListener("change", e=> draft.feeling.sommeil = e.target.value);
+  document.getElementById("fRpe").addEventListener("change", e=> draft.feeling.rpe = e.target.value);
+  document.getElementById("fCourbatures").addEventListener("change", e=>{
+    draft.feeling.courbatures = e.target.value;
+    document.getElementById("fZoneWrap").style.display = e.target.value==="oui" ? "" : "none";
+  });
+  document.getElementById("fZone").addEventListener("input", e=> draft.feeling.courbaturesZone = e.target.value);
   const notesEl = document.getElementById("sessNotes");
-  if(notesEl) notesEl.addEventListener("input", e=> draft.notes = e.target.value);
+  if(notesEl) notesEl.addEventListener("input", e=> draft.feeling.notes = e.target.value);
   const rd=document.getElementById("runDist"), rdu=document.getElementById("runDur"), rp=document.getElementById("runPace");
   if(rd){
     rd.addEventListener("input", e=>draft.run.distance=e.target.value);
@@ -401,7 +446,7 @@ function finishSession(plan, ds, existing){
     variant: plan.variant,
     week: plan.week,
     block: plan.block.n,
-    notes: draft.notes||"",
+    feeling: draft.feeling,
   };
   if(plan.category==="muscu") record.exercises = draft.exercises.map(e=>({name:e.name, target:e.target, sets:e.sets}));
   else record.run = draft.run;
@@ -448,7 +493,14 @@ function renderHistory(){
     } else {
       html += `<div style="font-size:13px;color:var(--muted);margin-top:4px;">${s.run.distance||"-"}km en ${s.run.duree||"-"}min (${s.run.allure||"-"}/km)</div>`;
     }
-    if(s.notes) html += `<div style="font-size:12px;color:var(--warn);margin-top:4px;">📝 ${s.notes}</div>`;
+    if(s.feeling){
+      const f = s.feeling;
+      html += `<div style="font-size:12px;color:var(--muted);margin-top:4px;">
+        ⚡ Énergie ${f.energie}/5 · 😴 Sommeil ${f.sommeil}/5 · RPE ${f.rpe}/10
+        ${f.courbatures==="oui"? ` · 🩹 Courbatures (${f.courbaturesZone||"zone non précisée"})`:""}
+      </div>`;
+      if(f.notes) html += `<div style="font-size:12px;color:var(--warn);margin-top:2px;">📝 ${f.notes}</div>`;
+    }
     html += `</div>`;
   });
   html += `</div>`;
