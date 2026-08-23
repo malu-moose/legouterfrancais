@@ -221,6 +221,19 @@
           <option value="autre">Autre</option>
         </select>
       </div>
+      <div class="field" id="fTypeViandeField" style="display:none;">
+        <label>Type de viande</label>
+        <select id="fTypeViande">
+          <option value="poulet">Poulet</option>
+          <option value="boeuf">Bœuf</option>
+          <option value="porc">Porc</option>
+          <option value="agneau">Agneau</option>
+          <option value="dinde">Dinde</option>
+          <option value="canard">Canard</option>
+          <option value="gibier">Gibier</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
       <div class="field">
         <label>Quantité</label>
         <input type="text" id="fQte" placeholder="Ex: 4 sacs, 1.2kg">
@@ -257,6 +270,8 @@
         <option value="old">Plus vieux d'abord</option>
         <option value="new">Plus récent d'abord</option>
         <option value="az">Alphabétique</option>
+        <option value="cat">Par catégorie</option>
+        <option value="viandeType">Par type de viande</option>
       </select>
     </div>
     <div id="listContainer"><div class="loading">Chargement...</div></div>
@@ -281,6 +296,19 @@
           <option value="gibier">Gibier / vrac</option>
           <option value="legumes">Légumes</option>
           <option value="plats">Plats préparés</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="field" id="eTypeViandeField" style="display:none;">
+        <label>Type de viande</label>
+        <select id="eTypeViande">
+          <option value="poulet">Poulet</option>
+          <option value="boeuf">Bœuf</option>
+          <option value="porc">Porc</option>
+          <option value="agneau">Agneau</option>
+          <option value="dinde">Dinde</option>
+          <option value="canard">Canard</option>
+          <option value="gibier">Gibier</option>
           <option value="autre">Autre</option>
         </select>
       </div>
@@ -329,6 +357,8 @@ const db = getDatabase(app);
 const freezerRef = ref(db, 'freezer-data');
 
 const CAT_LABELS = {viande:'Viande', poisson:'Poisson', gibier:'Gibier / vrac', legumes:'Légumes', plats:'Plats préparés', autre:'Autre'};
+const CAT_ORDER = Object.keys(CAT_LABELS);
+const VIANDE_LABELS = {poulet:'Poulet', boeuf:'Bœuf', porc:'Porc', agneau:'Agneau', dinde:'Dinde', canard:'Canard', gibier:'Gibier', autre:'Autre'};
 let data = {active: [], history: []};
 let currentTab = 'active';
 
@@ -390,7 +420,9 @@ function render(){
   if(currentTab === 'active'){
     if(sortOrder === 'old') items.sort((a,b) => new Date(a.date) - new Date(b.date));
     else if(sortOrder === 'new') items.sort((a,b) => new Date(b.date) - new Date(a.date));
-    else items.sort((a,b) => a.nom.localeCompare(b.nom));
+    else if(sortOrder === 'az') items.sort((a,b) => a.nom.localeCompare(b.nom));
+    else if(sortOrder === 'cat') items.sort((a,b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat) || a.nom.localeCompare(b.nom));
+    else if(sortOrder === 'viandeType') items.sort((a,b) => (VIANDE_LABELS[a.typeViande] || '').localeCompare(VIANDE_LABELS[b.typeViande] || '') || a.nom.localeCompare(b.nom));
   } else {
     items.sort((a,b) => new Date(b.dateSortie) - new Date(a.dateSortie));
   }
@@ -418,7 +450,7 @@ function render(){
         html += `
           <div class="item ${level}">
             <div class="item-main">
-              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}</div>
+              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}${i.cat === 'viande' && i.typeViande ? ' <span class="badge">' + (VIANDE_LABELS[i.typeViande] || i.typeViande) + '</span>' : ''}</div>
               <div class="item-meta">Entré le ${formatDate(i.date)}</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
@@ -486,6 +518,8 @@ window.openEditModal = function(id, list){
   editingList = list;
   document.getElementById('eNom').value = item.nom;
   document.getElementById('eCat').value = item.cat;
+  document.getElementById('eTypeViande').value = item.typeViande || 'poulet';
+  toggleTypeViandeField(document.getElementById('eCat'), document.getElementById('eTypeViandeField'));
   document.getElementById('eQte').value = item.qte || '';
   document.getElementById('eDate').value = item.date || '';
   document.getElementById('eNote').value = item.note || '';
@@ -518,6 +552,7 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
   if(!item) return;
   item.nom = nom;
   item.cat = document.getElementById('eCat').value;
+  item.typeViande = item.cat === 'viande' ? document.getElementById('eTypeViande').value : '';
   item.qte = document.getElementById('eQte').value.trim();
   item.date = document.getElementById('eDate').value || item.date;
   item.note = document.getElementById('eNote').value.trim();
@@ -533,10 +568,12 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const nom = document.getElementById('fNom').value.trim();
   if(!nom) return;
+  const cat = document.getElementById('fCat').value;
   const item = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
     nom,
-    cat: document.getElementById('fCat').value,
+    cat,
+    typeViande: cat === 'viande' ? document.getElementById('fTypeViande').value : '',
     qte: document.getElementById('fQte').value.trim(),
     date: document.getElementById('fDate').value || new Date().toISOString().slice(0,10),
     note: document.getElementById('fNote').value.trim()
@@ -544,7 +581,19 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   data.active.push(item);
   await saveData();
   e.target.reset();
+  toggleTypeViandeField(document.getElementById('fCat'), document.getElementById('fTypeViandeField'));
   render();
+});
+
+function toggleTypeViandeField(catSelect, fieldEl){
+  fieldEl.style.display = catSelect.value === 'viande' ? '' : 'none';
+}
+
+document.getElementById('fCat').addEventListener('change', (e) => {
+  toggleTypeViandeField(e.target, document.getElementById('fTypeViandeField'));
+});
+document.getElementById('eCat').addEventListener('change', (e) => {
+  toggleTypeViandeField(e.target, document.getElementById('eTypeViandeField'));
 });
 
 document.querySelectorAll('.tab').forEach(tab => {
