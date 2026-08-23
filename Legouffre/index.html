@@ -242,28 +242,49 @@
   <footer><button id="resetBtn">Réinitialiser toutes les données</button></footer>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// Remplace ces valeurs par la config de TON projet Firebase
+// (Console Firebase > Paramètres du projet > Vos applications > SDK config)
+const firebaseConfig = {
+  apiKey: "REMPLACE_MOI",
+  authDomain: "REMPLACE_MOI.firebaseapp.com",
+  databaseURL: "https://REMPLACE_MOI-default-rtdb.firebaseio.com",
+  projectId: "REMPLACE_MOI",
+  storageBucket: "REMPLACE_MOI.appspot.com",
+  messagingSenderId: "REMPLACE_MOI",
+  appId: "REMPLACE_MOI"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const freezerRef = ref(db, 'freezer-data');
+
 const CAT_LABELS = {viande:'Viande', poisson:'Poisson', gibier:'Gibier / vrac', legumes:'Légumes', plats:'Plats préparés', autre:'Autre'};
 let data = {active: [], history: []};
 let currentTab = 'active';
 
-async function loadData(){
-  try{
-    const raw = localStorage.getItem('freezer-data');
-    if(raw){
-      data = JSON.parse(raw);
-    }
-  }catch(e){
-    data = {active: [], history: []};
-  }
-  render();
+function loadData(){
+  const container = document.getElementById('listContainer');
+  container.innerHTML = '<div class="loading">Chargement...</div>';
+  onValue(freezerRef, (snapshot) => {
+    const val = snapshot.val();
+    data = {active: (val && val.active) || [], history: (val && val.history) || []};
+    render();
+  }, (err) => {
+    console.error('Erreur de synchronisation', err);
+    container.innerHTML = '<div class="empty">Impossible de se connecter à la base partagée. Vérifie la config Firebase.</div>';
+  });
 }
 
 async function saveData(){
   try{
-    localStorage.setItem('freezer-data', JSON.stringify(data));
+    await set(freezerRef, data);
   }catch(e){
     console.error('Erreur de sauvegarde', e);
+    alert("Erreur de synchronisation : la modification n'a peut-être pas été partagée.");
   }
 }
 
