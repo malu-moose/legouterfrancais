@@ -139,6 +139,16 @@ const COURSE = {
 };
 const COURSE_ORDER = ["facile","fractionne","longue"];
 
+const MEASURE_FIELDS = [
+  {key:"weight", label:"Poids", unit:"kg", step:"0.1"},
+  {key:"waist", label:"Tour de taille", unit:"cm", step:"0.5"},
+  {key:"hanches", label:"Tour de hanches", unit:"cm", step:"0.5"},
+  {key:"poitrine", label:"Tour de poitrine", unit:"cm", step:"0.5"},
+  {key:"cuisse", label:"Tour de cuisse", unit:"cm", step:"0.5"},
+  {key:"bras", label:"Tour de bras", unit:"cm", step:"0.5"},
+  {key:"masseGrasse", label:"% masse grasse", unit:"%", step:"0.1"}
+];
+
 // day-of-week (JS getDay: 0=Sun..6=Sat) -> category
 const WEEKLY_CALENDAR = {
   1:"muscu",   // lundi
@@ -696,10 +706,9 @@ function renderProgress(){
     <canvas id="courseChart"></canvas>
   </div>
   <div class="card">
-    <h2>Poids & tour de taille</h2>
+    <h2>Mesures corporelles</h2>
     <select id="measureSelect">
-      <option value="weight">Poids (kg)</option>
-      <option value="waist">Tour de taille (cm)</option>
+      ${MEASURE_FIELDS.map(f=>`<option value="${f.key}">${f.label} (${f.unit})</option>`).join("")}
     </select>
     <canvas id="measureChart"></canvas>
   </div>
@@ -809,10 +818,9 @@ function renderMeasures(){
   const container = document.getElementById("tab-measures");
   let html = `<div class="card">
     <h2>Nouvelle mesure</h2>
-    <div class="row">
-      <div><label class="small">Date</label><input type="date" id="mDate" value="${todayStr()}"></div>
-      <div><label class="small">Poids (kg)</label><input type="number" step="0.1" id="mWeight"></div>
-      <div><label class="small">Tour de taille (cm)</label><input type="number" step="0.5" id="mWaist"></div>
+    <div class="row"><div><label class="small">Date</label><input type="date" id="mDate" value="${todayStr()}"></div></div>
+    <div class="row" style="flex-wrap:wrap;margin-top:10px;">
+      ${MEASURE_FIELDS.map(f=>`<div style="min-width:120px;"><label class="small">${f.label} (${f.unit})</label><input type="number" step="${f.step}" id="m_${f.key}"></div>`).join("")}
     </div>
     <button class="btn-secondary" id="addMeasureBtn" style="margin-top:10px;width:100%;">Ajouter la mesure</button>
   </div>
@@ -823,19 +831,25 @@ function renderMeasures(){
   container.innerHTML = html;
   document.getElementById("addMeasureBtn").addEventListener("click", ()=>{
     const date = document.getElementById("mDate").value || todayStr();
-    const weight = document.getElementById("mWeight").value;
-    const waist = document.getElementById("mWaist").value;
-    if(!weight && !waist){ showToast("Renseigne au moins une valeur"); return; }
+    const rec = {date};
+    let hasValue = false;
+    MEASURE_FIELDS.forEach(f=>{
+      const v = document.getElementById("m_"+f.key).value;
+      rec[f.key] = v||"";
+      if(v) hasValue = true;
+    });
+    if(!hasValue){ showToast("Renseigne au moins une valeur"); return; }
     const idx = state.measurements.findIndex(m=>m.date===date);
-    const rec = {date, weight: weight||"", waist: waist||""};
-    if(idx>=0) state.measurements[idx]=rec; else state.measurements.push(rec);
+    if(idx>=0) state.measurements[idx]=Object.assign({}, state.measurements[idx], rec); else state.measurements.push(rec);
     saveState(state);
     showToast("Mesure enregistrée");
     renderMeasures();
   });
   const list = [...state.measurements].sort((a,b)=>a.date<b.date?1:-1);
   document.getElementById("measureList").innerHTML = list.length ? list.map(m=>
-    `<div class="hist-item"><div class="hist-date">${fmtDate(m.date)}</div><div>${m.weight?`Poids: ${m.weight}kg`:""} ${m.waist?` · Taille: ${m.waist}cm`:""}</div></div>`
+    `<div class="hist-item"><div class="hist-date">${fmtDate(m.date)}</div><div>${
+      MEASURE_FIELDS.filter(f=>m[f.key]).map(f=>`${f.label}: ${m[f.key]}${f.unit}`).join(" · ")
+    }</div></div>`
   ).join("") : `<div class="empty">Aucune mesure enregistrée</div>`;
 }
 
