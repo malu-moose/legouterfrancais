@@ -249,9 +249,9 @@ let currentTab = 'active';
 
 async function loadData(){
   try{
-    const res = await window.storage.get('freezer-data', true);
-    if(res && res.value){
-      data = JSON.parse(res.value);
+    const raw = localStorage.getItem('freezer-data');
+    if(raw){
+      data = JSON.parse(raw);
     }
   }catch(e){
     data = {active: [], history: []};
@@ -261,7 +261,7 @@ async function loadData(){
 
 async function saveData(){
   try{
-    await window.storage.set('freezer-data', JSON.stringify(data), true);
+    localStorage.setItem('freezer-data', JSON.stringify(data));
   }catch(e){
     console.error('Erreur de sauvegarde', e);
   }
