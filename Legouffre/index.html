@@ -134,8 +134,13 @@
   .item.warn{border-left-color:var(--warn);}
   .item.warn-strong{border-left-color:var(--warn-strong);}
   .item-main{flex:1; min-width:0;}
-  .item-name{font-weight:600; font-size:14.5px; color:var(--white);}
-  .item-meta{font-size:12px; color:var(--ice-soft); opacity:0.7; margin-top:3px; font-family:'IBM Plex Mono', monospace;}
+  .item-name{font-weight:600; font-size:14.5px; color:var(--white); line-height:1.3;}
+  .item-tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:5px;}
+  .tag{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; padding:2px 8px; border-radius:20px;
+    background:rgba(143,211,244,0.08); color:var(--ice-soft); opacity:0.85; white-space:nowrap;
+  }
+  .item-meta{font-size:11.5px; color:var(--ice-soft); opacity:0.55; margin-top:5px; font-family:'IBM Plex Mono', monospace;}
   .item-note{font-size:12px; color:var(--ice-soft); opacity:0.55; margin-top:3px; font-style:italic;}
   .badge{
     font-family:'IBM Plex Mono', monospace; font-size:11px; padding:3px 9px; border-radius:20px;
@@ -622,8 +627,13 @@ function render(){
         html += `
           <div class="item ${level}">
             <div class="item-main">
-              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}${i.cat === 'viande' && i.typeViande ? ' <span class="badge">' + (VIANDE_LABELS[i.typeViande] || i.typeViande) + '</span>' : ''} <span class="badge">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span></div>
-              <div class="item-meta">Entré le ${formatDate(i.date)} · conservation indicative : ${dureeConservationJours(i) / 30} mois</div>
+              <div class="item-name">${escapeHtml(i.nom)}</div>
+              <div class="item-tags">
+                ${i.qte ? `<span class="tag">Quantité : ${escapeHtml(i.qte)}</span>` : ''}
+                ${i.cat === 'viande' && i.typeViande ? `<span class="tag">${VIANDE_LABELS[i.typeViande] || i.typeViande}</span>` : ''}
+                <span class="tag">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span>
+              </div>
+              <div class="item-meta">Entré le ${formatDate(i.date)}</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
             <span class="badge ${level}">${conservationLabel(joursRestants)}</span>
@@ -637,7 +647,11 @@ function render(){
         html += `
           <div class="item">
             <div class="item-main">
-              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''} <span class="badge">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span></div>
+              <div class="item-name">${escapeHtml(i.nom)}</div>
+              <div class="item-tags">
+                ${i.qte ? `<span class="tag">Quantité : ${escapeHtml(i.qte)}</span>` : ''}
+                <span class="tag">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span>
+              </div>
               <div class="item-meta">Entré le ${formatDate(i.date)} · sorti le ${formatDate(i.dateSortie)}</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
