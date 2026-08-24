@@ -194,6 +194,23 @@
   .modal-actions{display:flex; gap:10px; grid-column:1 / -1; justify-content:flex-end;}
   .modal-actions .btn-primary{grid-column:auto;}
 
+  .freezer-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .freezer-chip{
+    display:flex; align-items:center; gap:8px;
+    background:rgba(143,211,244,0.1); border:1px solid rgba(143,211,244,0.25);
+    border-radius:20px; padding:6px 8px 6px 14px; font-size:12.5px; color:var(--ice-soft);
+  }
+  .freezer-chip .fc-name{cursor:pointer;}
+  .freezer-chip .fc-name:hover{color:var(--ice);}
+  .freezer-chip button{
+    background:none; border:none; color:var(--ice-soft); opacity:0.6;
+    cursor:pointer; font-size:15px; padding:2px 4px; line-height:1;
+  }
+  .freezer-chip button:hover{opacity:1; color:var(--warn);}
+  .freezer-add{display:flex; gap:8px; flex-wrap:wrap;}
+  .freezer-add input{flex:1; min-width:180px;}
+  .freezer-add button{white-space:nowrap;}
+
   @media (max-width:640px){
     .wrap{padding:22px 14px 0;}
     header{flex-direction:column; align-items:flex-start;}
@@ -238,11 +255,24 @@
   </div>
 
   <div class="panel">
+    <h2>Congélateurs</h2>
+    <div id="freezerList" class="freezer-list"></div>
+    <form id="freezerAddForm" class="freezer-add">
+      <input type="text" id="newFreezerName" placeholder="Ex: Congélateur du sous-sol">
+      <button type="submit" class="btn-ghost">+ Ajouter un congélateur</button>
+    </form>
+  </div>
+
+  <div class="panel">
     <h2>Ajouter une entrée</h2>
     <form id="addForm">
       <div class="field">
         <label>Nom</label>
         <input type="text" id="fNom" placeholder="Ex: cuisses de poulet" required>
+      </div>
+      <div class="field">
+        <label>Congélateur</label>
+        <select id="fFreezer"></select>
       </div>
       <div class="field">
         <label>Catégorie</label>
@@ -291,6 +321,7 @@
     </div>
     <div class="controls">
       <input type="text" id="searchBox" placeholder="Rechercher un item...">
+      <select id="freezerFilter"></select>
       <select id="catFilter">
         <option value="">Toutes catégories</option>
         <option value="viande">Viande</option>
@@ -306,6 +337,7 @@
         <option value="az">Alphabétique</option>
         <option value="cat">Par catégorie</option>
         <option value="viandeType">Par type de viande</option>
+        <option value="freezer">Par congélateur</option>
       </select>
     </div>
     <div id="listContainer"><div class="loading">Chargement...</div></div>
@@ -321,6 +353,10 @@
       <div class="field">
         <label>Nom</label>
         <input type="text" id="eNom" required>
+      </div>
+      <div class="field">
+        <label>Congélateur</label>
+        <select id="eFreezer"></select>
       </div>
       <div class="field">
         <label>Catégorie</label>
@@ -398,20 +434,43 @@ const VIANDE_LABELS = {poulet:'Poulet', boeuf:'Bœuf', porc:'Porc', agneau:'Agne
 const VIANDE_DUREE_MOIS = {poulet:9, boeuf:4, porc:5, agneau:8, dinde:12, canard:6, gibier:10, autre:6};
 const CAT_DUREE_MOIS = {viande:6, poisson:4, gibier:10, legumes:10, plats:3, autre:6};
 const ALERTE_JOURS = 14;
-let data = {active: [], history: []};
+let data = {active: [], history: [], freezers: []};
 let currentTab = 'active';
+
+function ensureDefaultFreezer(){
+  let changed = false;
+  if(data.freezers.length === 0){
+    data.freezers.push({id: 'default', nom: 'Congélateur principal'});
+    changed = true;
+  }
+  const defaultId = data.freezers[0].id;
+  [...data.active, ...data.history].forEach(i => {
+    if(!i.freezerId){ i.freezerId = defaultId; changed = true; }
+  });
+  if(changed) saveData();
+}
 
 function loadData(){
   const container = document.getElementById('listContainer');
   container.innerHTML = '<div class="loading">Chargement...</div>';
   onValue(freezerRef, (snapshot) => {
     const val = snapshot.val();
-    data = {active: (val && val.active) || [], history: (val && val.history) || []};
+    data = {
+      active: (val && val.active) || [],
+      history: (val && val.history) || [],
+      freezers: (val && val.freezers) || []
+    };
+    ensureDefaultFreezer();
     render();
   }, (err) => {
     console.error('Erreur de synchronisation', err);
     container.innerHTML = '<div class="empty">Impossible de se connecter à la base partagée. Vérifie la config Firebase.</div>';
   });
+}
+
+function freezerNom(id){
+  const f = data.freezers.find(x => x.id === id);
+  return f ? f.nom : 'Congélateur inconnu';
 }
 
 async function saveData(){
@@ -480,7 +539,38 @@ function renderAlertBanner(){
   banner.innerHTML = `<div class="alert-banner">⚠️ ${parts.join(' · ')}</div>`;
 }
 
+function renderFreezerList(){
+  const el = document.getElementById('freezerList');
+  el.innerHTML = data.freezers.map(f => `
+    <div class="freezer-chip">
+      <span class="fc-name" onclick="renameFreezer('${f.id}')">🧊 ${escapeHtml(f.nom)}</span>
+      <button type="button" onclick="deleteFreezer('${f.id}')" title="Supprimer">✕</button>
+    </div>
+  `).join('');
+}
+
+function populateFreezerSelects(){
+  const build = (selectEl, includeAllOption) => {
+    const prevValue = selectEl.value;
+    let html = includeAllOption ? '<option value="">Tous les congélateurs</option>' : '';
+    data.freezers.forEach(f => {
+      html += `<option value="${f.id}">${escapeHtml(f.nom)}</option>`;
+    });
+    selectEl.innerHTML = html;
+    if([...selectEl.options].some(o => o.value === prevValue)){
+      selectEl.value = prevValue;
+    } else if(!includeAllOption && data.freezers[0]){
+      selectEl.value = data.freezers[0].id;
+    }
+  };
+  build(document.getElementById('fFreezer'), false);
+  build(document.getElementById('eFreezer'), false);
+  build(document.getElementById('freezerFilter'), true);
+}
+
 function render(){
+  renderFreezerList();
+  populateFreezerSelects();
   renderDureeTable();
   renderAlertBanner();
   document.getElementById('statCount').textContent = data.active.length;
@@ -488,13 +578,15 @@ function render(){
 
   const search = document.getElementById('searchBox').value.toLowerCase().trim();
   const catFilter = document.getElementById('catFilter').value;
+  const freezerFilter = document.getElementById('freezerFilter').value;
   const sortOrder = document.getElementById('sortOrder').value;
 
   const source = currentTab === 'active' ? data.active : data.history;
   let items = source.filter(i => {
     const matchSearch = !search || i.nom.toLowerCase().includes(search);
     const matchCat = !catFilter || i.cat === catFilter;
-    return matchSearch && matchCat;
+    const matchFreezer = !freezerFilter || i.freezerId === freezerFilter;
+    return matchSearch && matchCat && matchFreezer;
   });
 
   if(currentTab === 'active'){
@@ -503,6 +595,7 @@ function render(){
     else if(sortOrder === 'az') items.sort((a,b) => a.nom.localeCompare(b.nom));
     else if(sortOrder === 'cat') items.sort((a,b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat) || a.nom.localeCompare(b.nom));
     else if(sortOrder === 'viandeType') items.sort((a,b) => (VIANDE_LABELS[a.typeViande] || '').localeCompare(VIANDE_LABELS[b.typeViande] || '') || a.nom.localeCompare(b.nom));
+    else if(sortOrder === 'freezer') items.sort((a,b) => freezerNom(a.freezerId).localeCompare(freezerNom(b.freezerId)) || a.nom.localeCompare(b.nom));
   } else {
     items.sort((a,b) => new Date(b.dateSortie) - new Date(a.dateSortie));
   }
@@ -529,7 +622,7 @@ function render(){
         html += `
           <div class="item ${level}">
             <div class="item-main">
-              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}${i.cat === 'viande' && i.typeViande ? ' <span class="badge">' + (VIANDE_LABELS[i.typeViande] || i.typeViande) + '</span>' : ''}</div>
+              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}${i.cat === 'viande' && i.typeViande ? ' <span class="badge">' + (VIANDE_LABELS[i.typeViande] || i.typeViande) + '</span>' : ''} <span class="badge">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span></div>
               <div class="item-meta">Entré le ${formatDate(i.date)} · conservation indicative : ${dureeConservationJours(i) / 30} mois</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
@@ -544,7 +637,7 @@ function render(){
         html += `
           <div class="item">
             <div class="item-main">
-              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}</div>
+              <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''} <span class="badge">🧊 ${escapeHtml(freezerNom(i.freezerId))}</span></div>
               <div class="item-meta">Entré le ${formatDate(i.date)} · sorti le ${formatDate(i.dateSortie)}</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
@@ -596,6 +689,7 @@ window.openEditModal = function(id, list){
   editingId = id;
   editingList = list;
   document.getElementById('eNom').value = item.nom;
+  document.getElementById('eFreezer').value = item.freezerId || (data.freezers[0] && data.freezers[0].id) || '';
   document.getElementById('eCat').value = item.cat;
   document.getElementById('eTypeViande').value = item.typeViande || 'poulet';
   toggleTypeViandeField(document.getElementById('eCat'), document.getElementById('eTypeViandeField'));
@@ -630,6 +724,7 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
   const item = data[editingList].find(i => i.id === editingId);
   if(!item) return;
   item.nom = nom;
+  item.freezerId = document.getElementById('eFreezer').value;
   item.cat = document.getElementById('eCat').value;
   item.typeViande = item.cat === 'viande' ? document.getElementById('eTypeViande').value : '';
   item.qte = document.getElementById('eQte').value.trim();
@@ -651,6 +746,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   const item = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
     nom,
+    freezerId: document.getElementById('fFreezer').value,
     cat,
     typeViande: cat === 'viande' ? document.getElementById('fTypeViande').value : '',
     qte: document.getElementById('fQte').value.trim(),
@@ -663,6 +759,52 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
   toggleTypeViandeField(document.getElementById('fCat'), document.getElementById('fTypeViandeField'));
   render();
 });
+
+document.getElementById('freezerAddForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('newFreezerName');
+  const nom = input.value.trim();
+  if(!nom) return;
+  data.freezers.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), nom });
+  await saveData();
+  input.value = '';
+  render();
+});
+
+window.renameFreezer = async function(id){
+  const freezer = data.freezers.find(f => f.id === id);
+  if(!freezer) return;
+  const nouveauNom = prompt('Nouveau nom du congélateur :', freezer.nom);
+  if(nouveauNom === null) return;
+  const trimmed = nouveauNom.trim();
+  if(!trimmed) return;
+  freezer.nom = trimmed;
+  await saveData();
+  render();
+};
+
+window.deleteFreezer = async function(id){
+  if(data.freezers.length <= 1){
+    alert('Il faut garder au moins un congélateur.');
+    return;
+  }
+  const freezer = data.freezers.find(f => f.id === id);
+  if(!freezer) return;
+  const itemCount = [...data.active, ...data.history].filter(i => i.freezerId === id).length;
+  const msg = itemCount > 0
+    ? `Supprimer "${freezer.nom}" ? Les ${itemCount} item(s) qu'il contient seront déplacés vers un autre congélateur.`
+    : `Supprimer "${freezer.nom}" ?`;
+  if(!confirm(msg)) return;
+  const fallbackId = data.freezers.find(f => f.id !== id).id;
+  [...data.active, ...data.history].forEach(i => {
+    if(i.freezerId === id) i.freezerId = fallbackId;
+  });
+  data.freezers = data.freezers.filter(f => f.id !== id);
+  await saveData();
+  render();
+};
+
+document.getElementById('freezerFilter').addEventListener('change', render);
 
 function toggleTypeViandeField(catSelect, fieldEl){
   fieldEl.style.display = catSelect.value === 'viande' ? '' : 'none';
