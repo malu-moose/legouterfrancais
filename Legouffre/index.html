@@ -115,11 +115,19 @@
   }
   .tab.active{background:var(--ice); color:var(--navy-deep); border-color:var(--ice); font-weight:600;}
 
-  .group-label{
+  .cat-group{margin-bottom:10px;}
+  .cat-group-summary{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
     font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ice);
-    text-transform:uppercase; letter-spacing:0.08em; margin:18px 0 8px 2px; opacity:0.75;
+    text-transform:uppercase; letter-spacing:0.08em; padding:8px 4px; opacity:0.85;
+    border-radius:6px;
   }
-  .group-label:first-child{margin-top:0;}
+  .cat-group-summary:hover{background:rgba(143,211,244,0.06);}
+  .cat-count{
+    font-size:10px; opacity:0.7; background:rgba(143,211,244,0.12);
+    padding:1px 8px; border-radius:10px; text-transform:none; letter-spacing:0;
+  }
+  .cat-group-body{margin-top:2px;}
 
   .item{
     display:flex; justify-content:space-between; align-items:center;
@@ -168,8 +176,24 @@
     list-style:none;
   }
   summary::-webkit-details-marker{display:none;}
-  summary::before{content:'▸ '; color:var(--ice);}
-  details[open] summary::before{content:'▾ ';}
+  summary:not(.panel-toggle-summary):not(.cat-group-summary)::before{content:'▸ '; color:var(--ice);}
+  details[open] summary:not(.panel-toggle-summary):not(.cat-group-summary)::before{content:'▾ ';}
+  .cat-group-summary .cat-group-title::before{content:'▸ '; color:var(--ice);}
+  details[open] > .cat-group-summary .cat-group-title::before{content:'▾ ';}
+
+  .panel-toggle-summary{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .panel-toggle-summary h2{margin:0;}
+  .toggle-icon{
+    width:28px; height:28px; border-radius:50%; flex-shrink:0;
+    border:1px solid rgba(143,211,244,0.35); background:rgba(143,211,244,0.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:17px; line-height:1; color:var(--ice);
+    transition:transform 0.15s ease;
+  }
+  details[open] > .panel-toggle-summary .toggle-icon{transform:rotate(45deg);}
+  .panel-toggle-body{margin-top:16px;}
   .duree-table{margin-top:14px; display:grid; grid-template-columns:1fr auto; gap:6px 16px; font-size:13px;}
   .duree-table .dt-label{color:var(--ice-soft); opacity:0.8;}
   .duree-table .dt-value{font-family:'IBM Plex Mono', monospace; color:var(--ice); text-align:right;}
@@ -261,16 +285,22 @@
   </div>
 
   <div class="panel">
-    <h2>Congélateurs</h2>
-    <div id="freezerList" class="freezer-list"></div>
-    <form id="freezerAddForm" class="freezer-add">
-      <input type="text" id="newFreezerName" placeholder="Ex: Congélateur du sous-sol">
-      <button type="submit" class="btn-ghost">+ Ajouter un congélateur</button>
-    </form>
+    <details id="freezerDetails">
+      <summary class="panel-toggle-summary"><h2>Congélateurs</h2><span class="toggle-icon">+</span></summary>
+      <div class="panel-toggle-body">
+        <div id="freezerList" class="freezer-list"></div>
+        <form id="freezerAddForm" class="freezer-add">
+          <input type="text" id="newFreezerName" placeholder="Ex: Congélateur du sous-sol">
+          <button type="submit" class="btn-ghost">+ Ajouter un congélateur</button>
+        </form>
+      </div>
+    </details>
   </div>
 
   <div class="panel">
-    <h2>Ajouter une entrée</h2>
+    <details id="addFormDetails">
+    <summary class="panel-toggle-summary"><h2>Ajouter une entrée</h2><span class="toggle-icon">+</span></summary>
+    <div class="panel-toggle-body">
     <form id="addForm">
       <div class="field">
         <label>Nom</label>
@@ -318,6 +348,8 @@
       </div>
       <button type="submit" class="btn-primary">Ajouter au congélateur</button>
     </form>
+    </div>
+    </details>
   </div>
 
   <div class="panel">
@@ -474,6 +506,7 @@ const CAT_DUREE_MOIS = {viande:6, poisson:4, gibier:10, legumes:10, plats:3, aut
 const ALERTE_JOURS = 14;
 let data = {active: [], history: [], freezers: []};
 let currentTab = 'active';
+let openCategoryGroups = new Set();
 
 function ensureDefaultFreezer(){
   let changed = false;
@@ -737,7 +770,11 @@ function render(){
 
   let html = '';
   Object.keys(grouped).forEach(cat => {
-    html += `<div class="group-label">${CAT_LABELS[cat] || cat}</div>`;
+    const groupKey = `${currentTab}:${cat}`;
+    const isOpen = openCategoryGroups.has(groupKey);
+    html += `<details class="cat-group" data-key="${groupKey}" ${isOpen ? 'open' : ''}>
+      <summary class="cat-group-summary"><span class="cat-group-title">${CAT_LABELS[cat] || cat}</span><span class="cat-count">${grouped[cat].length}</span></summary>
+      <div class="cat-group-body">`;
     grouped[cat].forEach(i => {
       if(currentTab === 'active'){
         const { joursRestants, level } = conservationInfo(i);
@@ -780,8 +817,16 @@ function render(){
           </div>`;
       }
     });
+    html += `</div></details>`;
   });
   container.innerHTML = html;
+  container.querySelectorAll('details.cat-group').forEach(d => {
+    d.addEventListener('toggle', () => {
+      const key = d.dataset.key;
+      if(d.open) openCategoryGroups.add(key);
+      else openCategoryGroups.delete(key);
+    });
+  });
 }
 
 function escapeHtml(s){
