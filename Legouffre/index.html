@@ -243,6 +243,7 @@
     <div>
       <h1>Le Gouffre 🥶</h1>
       <p class="tagline">Suivi du congélateur tombeau — ce qui rentre, ce qui sort, depuis quand</p>
+      <p class="tagline" style="margin-top:6px;">Foyer : <span id="familyCodeLabel" style="font-family:'IBM Plex Mono',monospace;color:var(--ice);letter-spacing:0.05em;"></span> · <button type="button" id="changeFamilyBtn" style="background:none;border:none;color:var(--ice-soft);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;opacity:0.8;">changer de foyer</button></p>
     </div>
     <div class="stats">
       <div class="stat"><div class="n" id="statCount">–</div><div class="l">items actifs</div></div>
@@ -351,6 +352,26 @@
   <footer><button id="resetBtn">Réinitialiser toutes les données</button></footer>
 </div>
 
+<div class="modal-overlay" id="familyGate">
+  <div class="modal">
+    <h2>Bienvenue dans Le Gouffre 🥶</h2>
+    <p style="font-size:13px; color:var(--ice-soft); opacity:0.8; margin:0 0 18px 0; line-height:1.5;">
+      Chaque foyer a son propre congélateur, identifié par un code unique. Crée un nouveau foyer, ou rejoins celui de ta famille avec leur code.
+    </p>
+    <div class="field full">
+      <label>Nouveau foyer</label>
+      <button type="button" class="btn-primary" id="createFamilyBtn" style="width:100%; justify-self:stretch; text-align:center;">Créer un code de foyer</button>
+    </div>
+    <div class="field full" style="margin-top:18px;">
+      <label>Rejoindre un foyer existant</label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="joinFamilyCode" placeholder="Ex: 7K2XQF" maxlength="8" style="text-transform:uppercase;">
+        <button type="button" class="btn-ghost" id="joinFamilyBtn">Rejoindre</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="editOverlay">
   <div class="modal">
     <h2>Modifier l'entrée</h2>
@@ -429,7 +450,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const freezerRef = ref(db, 'freezer-data');
+
+const FAMILY_CODE_KEY = 'legouffre-family-code';
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sans O/0, I/1 pour éviter la confusion
+let familyCode = null;
+let freezerRef = null;
+let unsubscribeFreezer = null;
+
+function generateFamilyCode(){
+  let code = '';
+  for(let i = 0; i < 6; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  return code;
+}
 
 const CAT_LABELS = {viande:'Viande', poisson:'Poisson', gibier:'Gibier / vrac', legumes:'Légumes', plats:'Plats préparés', autre:'Autre'};
 const CAT_ORDER = Object.keys(CAT_LABELS);
@@ -458,7 +490,8 @@ function ensureDefaultFreezer(){
 function loadData(){
   const container = document.getElementById('listContainer');
   container.innerHTML = '<div class="loading">Chargement...</div>';
-  onValue(freezerRef, (snapshot) => {
+  if(unsubscribeFreezer) unsubscribeFreezer();
+  unsubscribeFreezer = onValue(freezerRef, (snapshot) => {
     const val = snapshot.val();
     data = {
       active: (val && val.active) || [],
@@ -471,6 +504,43 @@ function loadData(){
     console.error('Erreur de synchronisation', err);
     container.innerHTML = '<div class="empty">Impossible de se connecter à la base partagée. Vérifie la config Firebase.</div>';
   });
+}
+
+function enterFamily(code){
+  familyCode = code;
+  localStorage.setItem(FAMILY_CODE_KEY, code);
+  freezerRef = ref(db, `familles/${code}/freezer-data`);
+  document.getElementById('familyCodeLabel').textContent = code;
+  document.getElementById('familyGate').classList.remove('open');
+  loadData();
+}
+
+document.getElementById('createFamilyBtn').addEventListener('click', () => {
+  const code = generateFamilyCode();
+  alert(`Foyer créé ! Partage ce code avec ta famille pour qu'elle rejoigne le même congélateur :\n\n${code}`);
+  enterFamily(code);
+});
+
+document.getElementById('joinFamilyBtn').addEventListener('click', () => {
+  const code = document.getElementById('joinFamilyCode').value.trim().toUpperCase();
+  if(!code) return;
+  enterFamily(code);
+});
+
+document.getElementById('changeFamilyBtn').addEventListener('click', () => {
+  if(!confirm('Changer de foyer ? Tu devras entrer ou créer un nouveau code pour retrouver un congélateur.')) return;
+  localStorage.removeItem(FAMILY_CODE_KEY);
+  if(unsubscribeFreezer) unsubscribeFreezer();
+  familyCode = null;
+  document.getElementById('joinFamilyCode').value = '';
+  document.getElementById('familyGate').classList.add('open');
+});
+
+const storedCode = localStorage.getItem(FAMILY_CODE_KEY);
+if(storedCode){
+  enterFamily(storedCode);
+} else {
+  document.getElementById('familyGate').classList.add('open');
 }
 
 function freezerNom(id){
@@ -846,14 +916,13 @@ document.getElementById('sortOrder').addEventListener('change', render);
 
 document.getElementById('resetBtn').addEventListener('click', async () => {
   if(!confirm('Effacer toutes les données du congélateur ? Cette action est irréversible.')) return;
-  data = {active: [], history: []};
+  data = {active: [], history: [], freezers: []};
+  ensureDefaultFreezer();
   await saveData();
   render();
 });
 
 document.getElementById('fDate').valueAsDate = new Date();
-
-loadData();
 </script>
 </body>
 </html>
