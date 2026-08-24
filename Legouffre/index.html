@@ -146,6 +146,31 @@
   .badge.ok{background:rgba(79,190,140,0.15); color:var(--ok);}
   .item-actions{display:flex; gap:6px; flex-shrink:0;}
 
+  .alert-banner{
+    background:rgba(232,115,74,0.14);
+    border:1px solid rgba(232,115,74,0.4);
+    border-radius:12px;
+    padding:13px 16px;
+    margin-bottom:22px;
+    font-size:13.5px;
+    color:var(--warn);
+    font-weight:600;
+  }
+
+  details{color:var(--ice-soft);}
+  summary{
+    cursor:pointer; font-size:13px; font-weight:600; color:var(--ice-soft);
+    list-style:none;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:'▸ '; color:var(--ice);}
+  details[open] summary::before{content:'▾ ';}
+  .duree-table{margin-top:14px; display:grid; grid-template-columns:1fr auto; gap:6px 16px; font-size:13px;}
+  .duree-table .dt-label{color:var(--ice-soft); opacity:0.8;}
+  .duree-table .dt-value{font-family:'IBM Plex Mono', monospace; color:var(--ice); text-align:right;}
+  .duree-table .dt-group{grid-column:1 / -1; margin-top:10px; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ice); opacity:0.75;}
+  .duree-table .dt-group:first-child{margin-top:0;}
+
   .empty{text-align:center; padding:40px 20px; color:var(--ice-soft); opacity:0.5; font-size:14px;}
   .loading{text-align:center; padding:30px; color:var(--ice-soft); opacity:0.6; font-size:13px;}
 
@@ -199,9 +224,18 @@
     </div>
     <div class="stats">
       <div class="stat"><div class="n" id="statCount">–</div><div class="l">items actifs</div></div>
-      <div class="stat"><div class="n" id="statOld">–</div><div class="l">à surveiller</div></div>
+      <div class="stat"><div class="n" id="statOld">–</div><div class="l">à utiliser ≤ 2 sem.</div></div>
     </div>
   </header>
+
+  <div id="alertBanner"></div>
+
+  <div class="panel">
+    <details>
+      <summary>Durées de conservation recommandées au congélateur</summary>
+      <div id="dureeTable" class="duree-table"></div>
+    </details>
+  </div>
 
   <div class="panel">
     <h2>Ajouter une entrée</h2>
@@ -359,6 +393,11 @@ const freezerRef = ref(db, 'freezer-data');
 const CAT_LABELS = {viande:'Viande', poisson:'Poisson', gibier:'Gibier / vrac', legumes:'Légumes', plats:'Plats préparés', autre:'Autre'};
 const CAT_ORDER = Object.keys(CAT_LABELS);
 const VIANDE_LABELS = {poulet:'Poulet', boeuf:'Bœuf', porc:'Porc', agneau:'Agneau', dinde:'Dinde', canard:'Canard', gibier:'Gibier', autre:'Autre'};
+
+// Durées de conservation indicatives au congélateur (en mois)
+const VIANDE_DUREE_MOIS = {poulet:9, boeuf:4, porc:5, agneau:8, dinde:12, canard:6, gibier:10, autre:6};
+const CAT_DUREE_MOIS = {viande:6, poisson:4, gibier:10, legumes:10, plats:3, autre:6};
+const ALERTE_JOURS = 14;
 let data = {active: [], history: []};
 let currentTab = 'active';
 
@@ -390,21 +429,62 @@ function daysSince(dateStr){
   return Math.floor((now - d) / 86400000);
 }
 
-function warnLevel(days){
-  if(days >= 365) return 'warn-strong';
-  if(days >= 240) return 'warn';
-  return '';
+function dureeConservationJours(item){
+  const mois = item.cat === 'viande'
+    ? (VIANDE_DUREE_MOIS[item.typeViande] || VIANDE_DUREE_MOIS.autre)
+    : (CAT_DUREE_MOIS[item.cat] || CAT_DUREE_MOIS.autre);
+  return mois * 30;
 }
 
-function warnLabel(days){
-  if(days >= 365) return `${days} j — plus d'un an`;
-  if(days >= 240) return `${days} j — à surveiller`;
-  return `${days} j`;
+function conservationInfo(item){
+  const dureeJours = dureeConservationJours(item);
+  const joursRestants = dureeJours - daysSince(item.date);
+  let level = '';
+  if(joursRestants <= 0) level = 'warn-strong';
+  else if(joursRestants <= ALERTE_JOURS) level = 'warn';
+  return { joursRestants, level };
+}
+
+function conservationLabel(joursRestants){
+  if(joursRestants <= 0) return `Expiré depuis ${Math.abs(joursRestants)} j`;
+  return `${joursRestants} j restants`;
+}
+
+function renderDureeTable(){
+  const el = document.getElementById('dureeTable');
+  if(el.dataset.rendered) return;
+  let html = '<div class="dt-group">Viande</div>';
+  Object.keys(VIANDE_DUREE_MOIS).forEach(k => {
+    html += `<div class="dt-label">${VIANDE_LABELS[k]}</div><div class="dt-value">${VIANDE_DUREE_MOIS[k]} mois</div>`;
+  });
+  html += '<div class="dt-group">Autres catégories</div>';
+  Object.keys(CAT_DUREE_MOIS).filter(k => k !== 'viande').forEach(k => {
+    html += `<div class="dt-label">${CAT_LABELS[k] || k}</div><div class="dt-value">${CAT_DUREE_MOIS[k]} mois</div>`;
+  });
+  el.innerHTML = html;
+  el.dataset.rendered = '1';
+}
+
+function renderAlertBanner(){
+  const banner = document.getElementById('alertBanner');
+  const expires = data.active.filter(i => conservationInfo(i).joursRestants <= ALERTE_JOURS);
+  if(expires.length === 0){
+    banner.innerHTML = '';
+    return;
+  }
+  const expired = expires.filter(i => conservationInfo(i).joursRestants <= 0).length;
+  const bientot = expires.length - expired;
+  const parts = [];
+  if(expired > 0) parts.push(`${expired} périmé${expired > 1 ? 's' : ''}`);
+  if(bientot > 0) parts.push(`${bientot} à utiliser dans les 2 prochaines semaines`);
+  banner.innerHTML = `<div class="alert-banner">⚠️ ${parts.join(' · ')}</div>`;
 }
 
 function render(){
+  renderDureeTable();
+  renderAlertBanner();
   document.getElementById('statCount').textContent = data.active.length;
-  document.getElementById('statOld').textContent = data.active.filter(i => daysSince(i.date) >= 240).length;
+  document.getElementById('statOld').textContent = data.active.filter(i => conservationInfo(i).joursRestants <= ALERTE_JOURS).length;
 
   const search = document.getElementById('searchBox').value.toLowerCase().trim();
   const catFilter = document.getElementById('catFilter').value;
@@ -445,16 +525,15 @@ function render(){
     html += `<div class="group-label">${CAT_LABELS[cat] || cat}</div>`;
     grouped[cat].forEach(i => {
       if(currentTab === 'active'){
-        const days = daysSince(i.date);
-        const level = warnLevel(days);
+        const { joursRestants, level } = conservationInfo(i);
         html += `
           <div class="item ${level}">
             <div class="item-main">
               <div class="item-name">${escapeHtml(i.nom)}${i.qte ? ' — ' + escapeHtml(i.qte) : ''}${i.cat === 'viande' && i.typeViande ? ' <span class="badge">' + (VIANDE_LABELS[i.typeViande] || i.typeViande) + '</span>' : ''}</div>
-              <div class="item-meta">Entré le ${formatDate(i.date)}</div>
+              <div class="item-meta">Entré le ${formatDate(i.date)} · conservation indicative : ${dureeConservationJours(i) / 30} mois</div>
               ${i.note ? `<div class="item-note">${escapeHtml(i.note)}</div>` : ''}
             </div>
-            <span class="badge ${level}">${warnLabel(days)}</span>
+            <span class="badge ${level}">${conservationLabel(joursRestants)}</span>
             <div class="item-actions">
               <button class="btn-ghost" onclick="openEditModal('${i.id}', 'active')">Modifier</button>
               <button class="btn-ghost" onclick="markOut('${i.id}')">Sortir</button>
