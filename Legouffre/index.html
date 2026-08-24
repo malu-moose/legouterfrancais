@@ -434,7 +434,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // Remplace ces valeurs par la config de TON projet Firebase
 // (Console Firebase > Paramètres du projet > Vos applications > SDK config)
@@ -515,8 +515,19 @@ function enterFamily(code){
   loadData();
 }
 
-document.getElementById('createFamilyBtn').addEventListener('click', () => {
+document.getElementById('createFamilyBtn').addEventListener('click', async () => {
   const code = generateFamilyCode();
+  try {
+    // Récupère les données de l'ancienne version (avant les codes famille) si elles existent,
+    // pour que le premier foyer créé ne perde pas son congélateur déjà rempli.
+    const legacySnap = await get(ref(db, 'freezer-data'));
+    const legacyVal = legacySnap.val();
+    if(legacyVal && (legacyVal.active || legacyVal.history)){
+      await set(ref(db, `familles/${code}/freezer-data`), legacyVal);
+    }
+  } catch(e){
+    console.error('Migration des anciennes données impossible', e);
+  }
   alert(`Foyer créé ! Partage ce code avec ta famille pour qu'elle rejoigne le même congélateur :\n\n${code}`);
   enterFamily(code);
 });
