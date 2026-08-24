@@ -243,7 +243,7 @@
     <div>
       <h1>Le Gouffre 🥶</h1>
       <p class="tagline">Fini les surprises au fond du congélateur</p>
-      <p class="tagline" style="margin-top:6px;">Foyer : <span id="familyCodeLabel" style="font-family:'IBM Plex Mono',monospace;color:var(--ice);letter-spacing:0.05em;"></span> · <button type="button" id="changeFamilyBtn" style="background:none;border:none;color:var(--ice-soft);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;opacity:0.8;">changer de foyer</button></p>
+      <p class="tagline" style="margin-top:6px;">Foyer : <span id="familyNameLabel" style="color:var(--ice); cursor:pointer;" title="Cliquer pour renommer le foyer"></span> <span id="familyCodeLabel" style="font-family:'IBM Plex Mono',monospace; opacity:0.6; font-size:11px;"></span> · <button type="button" id="changeFamilyBtn" style="background:none;border:none;color:var(--ice-soft);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;opacity:0.8;">changer de foyer</button></p>
     </div>
     <div class="stats">
       <div class="stat"><div class="n" id="statCount">–</div><div class="l">items actifs</div></div>
@@ -360,7 +360,8 @@
     </p>
     <div class="field full">
       <label>Nouveau foyer</label>
-      <button type="button" class="btn-primary" id="createFamilyBtn" style="width:100%; justify-self:stretch; text-align:center;">Créer un code de foyer</button>
+      <input type="text" id="newFamilyName" placeholder="Ex: Chez les Tremblay" style="margin-bottom:8px;">
+      <button type="button" class="btn-primary" id="createFamilyBtn" style="width:100%; justify-self:stretch; text-align:center;">Créer ce foyer</button>
     </div>
     <div class="field full" style="margin-top:18px;">
       <label>Rejoindre un foyer existant</label>
@@ -527,20 +528,33 @@ async function migrateLegacyDataIfNeeded(code){
   }
 }
 
-async function enterFamily(code){
+let familyNameRef = null;
+let unsubscribeFamilyName = null;
+
+async function enterFamily(code, initialName){
   familyCode = code;
   localStorage.setItem(FAMILY_CODE_KEY, code);
   freezerRef = ref(db, `familles/${code}/freezer-data`);
-  document.getElementById('familyCodeLabel').textContent = code;
+  familyNameRef = ref(db, `familles/${code}/nom`);
+  document.getElementById('familyCodeLabel').textContent = `(${code})`;
   document.getElementById('familyGate').classList.remove('open');
   await migrateLegacyDataIfNeeded(code);
+  if(initialName){
+    await set(familyNameRef, initialName);
+  }
+  if(unsubscribeFamilyName) unsubscribeFamilyName();
+  unsubscribeFamilyName = onValue(familyNameRef, (snapshot) => {
+    const nom = snapshot.val();
+    document.getElementById('familyNameLabel').textContent = nom || 'Foyer sans nom';
+  });
   loadData();
 }
 
 document.getElementById('createFamilyBtn').addEventListener('click', () => {
   const code = generateFamilyCode();
-  alert(`Foyer créé ! Partage ce code avec ta famille pour qu'elle rejoigne le même congélateur :\n\n${code}`);
-  enterFamily(code);
+  const nom = document.getElementById('newFamilyName').value.trim() || 'Notre foyer';
+  alert(`Foyer "${nom}" créé ! Partage ce code avec ta famille pour qu'elle le rejoigne :\n\n${code}`);
+  enterFamily(code, nom);
 });
 
 document.getElementById('joinFamilyBtn').addEventListener('click', () => {
@@ -549,12 +563,23 @@ document.getElementById('joinFamilyBtn').addEventListener('click', () => {
   enterFamily(code);
 });
 
+document.getElementById('familyNameLabel').addEventListener('click', async () => {
+  if(!familyNameRef) return;
+  const nouveauNom = prompt('Nouveau nom du foyer :', document.getElementById('familyNameLabel').textContent);
+  if(nouveauNom === null) return;
+  const trimmed = nouveauNom.trim();
+  if(!trimmed) return;
+  await set(familyNameRef, trimmed);
+});
+
 document.getElementById('changeFamilyBtn').addEventListener('click', () => {
   if(!confirm('Changer de foyer ? Tu devras entrer ou créer un nouveau code pour retrouver un congélateur.')) return;
   localStorage.removeItem(FAMILY_CODE_KEY);
   if(unsubscribeFreezer) unsubscribeFreezer();
+  if(unsubscribeFamilyName) unsubscribeFamilyName();
   familyCode = null;
   document.getElementById('joinFamilyCode').value = '';
+  document.getElementById('newFamilyName').value = '';
   document.getElementById('familyGate').classList.add('open');
 });
 
