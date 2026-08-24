@@ -506,28 +506,39 @@ function loadData(){
   });
 }
 
-function enterFamily(code){
+// Code réservé pour rapatrier une seule fois les données d'avant les codes famille.
+// Toute autre création de foyer démarre sur une base vide.
+const LEGACY_MIGRATION_CODE = '46MHQV';
+
+async function migrateLegacyDataIfNeeded(code){
+  if(code !== LEGACY_MIGRATION_CODE) return;
+  try {
+    const destRef = ref(db, `familles/${code}/freezer-data`);
+    const destSnap = await get(destRef);
+    const destVal = destSnap.val();
+    if(destVal && (destVal.active || destVal.history)) return; // déjà migré
+    const legacySnap = await get(ref(db, 'freezer-data'));
+    const legacyVal = legacySnap.val();
+    if(legacyVal && (legacyVal.active || legacyVal.history)){
+      await set(destRef, legacyVal);
+    }
+  } catch(e){
+    console.error('Migration des anciennes données impossible', e);
+  }
+}
+
+async function enterFamily(code){
   familyCode = code;
   localStorage.setItem(FAMILY_CODE_KEY, code);
   freezerRef = ref(db, `familles/${code}/freezer-data`);
   document.getElementById('familyCodeLabel').textContent = code;
   document.getElementById('familyGate').classList.remove('open');
+  await migrateLegacyDataIfNeeded(code);
   loadData();
 }
 
-document.getElementById('createFamilyBtn').addEventListener('click', async () => {
+document.getElementById('createFamilyBtn').addEventListener('click', () => {
   const code = generateFamilyCode();
-  try {
-    // Récupère les données de l'ancienne version (avant les codes famille) si elles existent,
-    // pour que le premier foyer créé ne perde pas son congélateur déjà rempli.
-    const legacySnap = await get(ref(db, 'freezer-data'));
-    const legacyVal = legacySnap.val();
-    if(legacyVal && (legacyVal.active || legacyVal.history)){
-      await set(ref(db, `familles/${code}/freezer-data`), legacyVal);
-    }
-  } catch(e){
-    console.error('Migration des anciennes données impossible', e);
-  }
   alert(`Foyer créé ! Partage ce code avec ta famille pour qu'elle rejoigne le même congélateur :\n\n${code}`);
   enterFamily(code);
 });
