@@ -1,7 +1,7 @@
 {
-  "name": "Suivi Entraînement 16 semaines",
-  "short_name": "Entraînement",
-  "description": "Suivi de programme muscu + course sur 16 semaines",
+  "name": "Suivi Hyrox 8 mois",
+  "short_name": "Hyrox",
+  "description": "Suivi de programme d'entraînement Hyrox sur 8 mois",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
