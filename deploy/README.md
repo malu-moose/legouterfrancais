@@ -93,3 +93,22 @@ Couvert par `setup-vps.sh` :
 - Si tu ajoutes un jour un backend (ex. formulaire newsletter avec stockage
   des emails), il faudra une configuration additionnelle (reverse proxy vers
   l'appli, validation des entrées, etc.) — à faire au moment venu
+
+## Cohabitation avec OpenClaw sur le même VPS
+
+Ce VPS héberge aussi OpenClaw (agent IA, contrôlé via Telegram). Points à
+retenir :
+- OpenClaw ne communique qu'en sortant (polling de l'API Telegram) : aucun
+  port entrant à ouvrir pour lui, il n'entre pas en conflit avec le pare-feu
+  22/80/443 ci-dessus.
+- Il tourne sous un utilisateur Linux dédié, séparé de `www-data` et sans
+  droits sudo — bonne pratique déjà en place, à conserver. Vérifie que ce
+  compte n'a pas accès en écriture à `/var/www/legouterfrancais`
+  (`ls -la /var/www/legouterfrancais`, les fichiers doivent appartenir à
+  `www-data`).
+- Un agent IA autonome sur une machine qui sert aussi un site public est un
+  risque à garder en tête : s'il est compromis, un attaquant qui obtiendrait
+  l'accès à son compte isolé ne devrait trouver ni droits root, ni accès aux
+  fichiers du site — c'est exactement ce que l'isolation par utilisateur
+  empêche. Garde ses identifiants Telegram/API hors de tout dépôt git et
+  surveille ses logs comme ceux de nginx.
