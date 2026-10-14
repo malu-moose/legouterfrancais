@@ -1,10 +1,13 @@
-# Mise en ligne de legouterfrancais.com sur le VPS OVH
+# Infrastructure Le Goûter Français
 
-Ces fichiers sont faits pour être exécutés **depuis ton propre ordinateur**
-(là où ta connexion SSH vers le VPS fonctionne), pas depuis cette session cloud
-qui n'a pas d'accès SSH sortant.
+Deux hébergements séparés, pour deux usages différents :
 
-## 0. Avant tout : régénère ta clé SSH
+| Composant | Où | Pourquoi |
+|---|---|---|
+| Site vitrine public (`legouterfrancais.com`) | **WHC** (hébergement mutualisé existant) | Statique, zéro maintenance, HTTPS automatique — voir `whc-deploy.md` |
+| Application de production / intranet (à venir, derrière login) | **VPS OVH** (`54.39.20.153`) | Nécessite un serveur dédié, une authentification, et tourne aux côtés d'OpenClaw |
+
+## 0. Avant tout : régénère ta clé SSH du VPS
 
 Tu as partagé ta clé privée en clair dans le chat — elle est donc compromise.
 Sur ta machine :
@@ -17,98 +20,77 @@ ssh-copy-id -i ~/.ssh/<nouvelle_cle>.pub ubuntu@54.39.20.153
 Puis connecte-toi avec la nouvelle clé et retire l'ancienne clé publique
 correspondante de `~/.ssh/authorized_keys` sur le VPS (`nano ~/.ssh/authorized_keys`).
 
-## 1. DNS chez OVH
+## 1. Site public → WHC
 
-Dans le manager OVH, zone DNS de `legouterfrancais.com` :
+Suis `deploy/whc-deploy.md` : upload de `index.html` et `images/` via le
+Gestionnaire de fichiers cPanel ou FTP. Ne touche pas au VPS pour ça.
 
-| Type | Nom | Cible          |
-|------|-----|----------------|
-| A    | @   | 54.39.20.153   |
-| A    | www | 54.39.20.153   |
+## 2. VPS → sécurisation de base (dès maintenant)
 
-Attends la propagation (quelques minutes à quelques heures). Vérifie avec :
-
-```bash
-dig +short legouterfrancais.com
-```
-
-## 2. Copier ces fichiers de déploiement sur le VPS
+Le VPS ne sert rien publiquement pour l'instant (l'app n'existe pas encore),
+donc on se contente de le durcir :
 
 ```bash
-scp -r deploy ubuntu@54.39.20.153:~/
-```
-
-## 3. Lancer la configuration du serveur (une seule fois)
-
-```bash
-ssh ubuntu@54.39.20.153
-cd deploy
-sudo bash setup-vps.sh
+git clone https://github.com/malu-moose/legouterfrancais.git ~/legouterfrancais
+cd ~/legouterfrancais
+sudo bash deploy/harden-vps.sh
 ```
 
 Ce script :
 - met à jour le système et active les mises à jour de sécurité automatiques
-- installe nginx + Certbot (HTTPS gratuit, renouvellement automatique)
-- configure le pare-feu (UFW) : seuls SSH, HTTP et HTTPS sont ouverts
+- configure le pare-feu (UFW) : **seul SSH est ouvert** (pas de 80/443 tant
+  qu'il n'y a rien à servir publiquement)
 - installe fail2ban (bannit les IP qui tentent de forcer le SSH)
 - durcit SSH (désactive la connexion par mot de passe et le login root)
-- demande le certificat HTTPS pour legouterfrancais.com (nécessite que le DNS
-  pointe déjà vers le VPS, voir étape 1)
-- installe la config nginx durcie (en-têtes de sécurité, blocage des fichiers
-  cachés, mise en cache des images)
 
-## 4. Déployer le site
+## 3. Déploiement futur : app.legouterfrancais.com (quand l'app existe)
 
-Depuis la racine du dépôt, sur ta machine :
+À faire le moment venu, pas maintenant :
 
-```bash
-bash deploy/deploy-site.sh
-```
-
-Relance cette commande chaque fois que tu modifies `index.html` ou les images.
-
-## 5. Vérifier
-
-```bash
-curl -I https://legouterfrancais.com
-```
-
-Tu dois voir `HTTP/2 200` et les en-têtes de sécurité (`strict-transport-security`, etc.).
+1. Chez OVH, ajoute un enregistrement DNS :
+   `A  app  54.39.20.153`
+2. Installe nginx + Certbot sur le VPS, avec un reverse proxy vers l'app et
+   un certificat HTTPS pour `app.legouterfrancais.com` uniquement (jamais
+   l'apex `legouterfrancais.com`, qui reste sur WHC).
+3. Ouvre 80/443 dans UFW : `sudo ufw allow 80/tcp && sudo ufw allow 443/tcp`
+4. Mets l'authentification en place **avant** d'ouvrir le port 443 au public
+   — soit dans l'app elle-même (login), soit en amont avec une
+   authentification basique nginx ou un accès restreint par IP/VPN le temps
+   que l'app ait son propre système de login. Pas d'app accessible sans
+   authentification, même temporairement.
+5. On écrira la config nginx dédiée à ce moment-là (dépend de la techno de
+   l'app : reverse proxy vers quel port, etc.)
 
 ## Sécurité : ce qui est couvert, ce qui ne l'est pas
 
-Couvert par `setup-vps.sh` :
-- HTTPS forcé + renouvellement auto du certificat
-- Pare-feu minimal (22/80/443 uniquement)
+Couvert par `harden-vps.sh` :
+- Pare-feu minimal (SSH uniquement pour l'instant)
 - Anti brute-force SSH (fail2ban)
 - SSH par clé uniquement, pas de login root
 - Mises à jour de sécurité automatiques
-- En-têtes HTTP de sécurité (HSTS, CSP, X-Frame-Options, etc.)
+
+Pas encore couvert (normal, à faire au moment du déploiement de l'app) :
+- HTTPS / nginx / reverse proxy pour `app.legouterfrancais.com`
+- Authentification de l'application elle-même
 
 À faire toi-même, régulièrement :
 - Garder une sauvegarde de ta clé SSH privée en lieu sûr (gestionnaire de mots
   de passe), ne jamais la recoller dans un chat ou un ticket
 - Vérifier de temps en temps `sudo fail2ban-client status sshd` et
   `sudo ufw status`
-- Si tu ajoutes un jour un backend (ex. formulaire newsletter avec stockage
-  des emails), il faudra une configuration additionnelle (reverse proxy vers
-  l'appli, validation des entrées, etc.) — à faire au moment venu
 
 ## Cohabitation avec OpenClaw sur le même VPS
 
 Ce VPS héberge aussi OpenClaw (agent IA, contrôlé via Telegram). Points à
 retenir :
 - OpenClaw ne communique qu'en sortant (polling de l'API Telegram) : aucun
-  port entrant à ouvrir pour lui, il n'entre pas en conflit avec le pare-feu
-  22/80/443 ci-dessus.
-- Il tourne sous un utilisateur Linux dédié, séparé de `www-data` et sans
-  droits sudo — bonne pratique déjà en place, à conserver. Vérifie que ce
-  compte n'a pas accès en écriture à `/var/www/legouterfrancais`
-  (`ls -la /var/www/legouterfrancais`, les fichiers doivent appartenir à
-  `www-data`).
-- Un agent IA autonome sur une machine qui sert aussi un site public est un
-  risque à garder en tête : s'il est compromis, un attaquant qui obtiendrait
-  l'accès à son compte isolé ne devrait trouver ni droits root, ni accès aux
-  fichiers du site — c'est exactement ce que l'isolation par utilisateur
-  empêche. Garde ses identifiants Telegram/API hors de tout dépôt git et
-  surveille ses logs comme ceux de nginx.
+  port entrant à ouvrir pour lui, il n'entre pas en conflit avec le pare-feu.
+- Il tourne sous un utilisateur Linux dédié, séparé de celui de l'app et sans
+  droits sudo — bonne pratique déjà en place, à conserver. Quand l'app
+  existera, vérifie qu'OpenClaw n'a pas accès en écriture à son dossier.
+- Un agent IA autonome sur une machine qui sert aussi une app de production
+  est un risque à garder en tête : s'il est compromis, un attaquant qui
+  obtiendrait l'accès à son compte isolé ne devrait trouver ni droits root,
+  ni accès aux fichiers de l'app — c'est exactement ce que l'isolation par
+  utilisateur empêche. Garde ses identifiants Telegram/API hors de tout
+  dépôt git et surveille ses logs.
