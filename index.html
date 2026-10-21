@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Le Goûter Français — Cookies artisanaux</title>
-<meta name="description" content="Le Goûter Français : cookies artisanaux inspirés de la pâtisserie française. Retrouvez-nous en marché.">
+<title>Le Goûter Français — Bientôt disponible</title>
+<meta name="description" content="Le Goûter Français arrive bientôt : cookies artisanaux inspirés de la pâtisserie française.">
 <meta name="theme-color" content="#1F3329">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Le Goûter Français — Cookies artisanaux">
-<meta property="og:description" content="Le goûter, à la française. Cookies artisanaux, retrouvez-nous en marché.">
+<meta property="og:title" content="Le Goûter Français — Bientôt disponible">
+<meta property="og:description" content="Le goûter, à la française. Arrive bientôt.">
 <meta property="og:url" content="https://legouterfrancais.com/">
-<meta property="og:image" content="https://legouterfrancais.com/images/og-cover.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://legouterfrancais.com/">
 
@@ -30,7 +29,7 @@
   --blanc:#FFFFFF;
 }
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html,body{height:100%;}
 body{
   margin:0;
   background:var(--creme);
@@ -38,261 +37,59 @@ body{
   font-family:'Jost',sans-serif;
   font-weight:400;
   line-height:1.6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
 }
-img{max-width:100%;display:block;}
 a{color:inherit;}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
 
-/* ---------- Tricolor thread ---------- */
 .tricolor-bar{
-  width:120px;height:3px;display:flex;border-radius:2px;overflow:hidden;margin:14px auto 0;
+  width:120px;height:3px;display:flex;border-radius:2px;overflow:hidden;margin:22px auto 0;
 }
 .tricolor-bar span{flex:1;}
 .tricolor-bar .b{background:var(--bleu);}
 .tricolor-bar .w{background:var(--blanc);}
 .tricolor-bar .r{background:var(--rouge);}
 
-/* ---------- Nav ---------- */
-nav.site-nav{
-  position:sticky;top:0;z-index:50;
-  background:rgba(246,238,223,0.92);
-  backdrop-filter:blur(6px);
-  border-bottom:1px solid rgba(31,51,41,0.08);
-}
-.nav-inner{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;max-width:1080px;margin:0 auto;
-}
-.nav-brand{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  font-size:19px;color:var(--vert-sapin);text-decoration:none;
-}
-.nav-brand .tricolor-bar{
-  width:48px;height:2px;margin:0;
-}
-.nav-right{display:flex;align-items:center;gap:22px;}
-.nav-links{display:flex;gap:28px;list-style:none;margin:0;padding:0;}
-.nav-links a{
-  font-size:14px;text-decoration:none;color:var(--vert-sapin);
-  opacity:0.75;transition:opacity .15s ease;
-}
-.nav-links a:hover{opacity:1;}
-.nav-cta{
-  font-size:13.5px;font-weight:600;
-  background:var(--vert-sapin);color:var(--blanc)!important;
-  padding:9px 18px;border-radius:999px;opacity:1!important;
-}
-
-/* ---------- Language switch ---------- */
-.lang-switch{position:relative;}
-.lang-btn{
-  display:flex;align-items:center;justify-content:center;
-  width:38px;height:38px;border-radius:50%;
-  border:1.5px solid rgba(31,51,41,0.15);
-  background:transparent;cursor:pointer;
-  color:var(--vert-sapin);
-  transition:background .15s ease;
-}
-.lang-btn:hover{background:rgba(31,51,41,0.06);}
-.lang-btn svg{width:20px;height:20px;}
-.lang-menu{
-  position:absolute;top:calc(100% + 8px);right:0;
-  background:var(--blanc);
-  border:1px solid rgba(31,51,41,0.1);
-  border-radius:12px;
-  box-shadow:0 8px 24px rgba(31,51,41,0.12);
-  padding:6px;min-width:130px;
-  display:none;flex-direction:column;gap:2px;
-  z-index:60;
-}
-.lang-menu.open{display:flex;}
-.lang-menu button{
-  border:none;background:none;text-align:left;
-  padding:9px 12px;border-radius:8px;
-  font-size:14px;font-family:'Jost',sans-serif;color:var(--vert-sapin);
-  cursor:pointer;
-}
-.lang-menu button:hover{background:var(--creme);}
-.lang-menu button.active{font-weight:600;color:var(--or);background:rgba(216,179,106,0.12);}
-
-/* ---------- Hero ---------- */
-.hero{
+.wrap{
+  max-width:560px;
   text-align:center;
-  padding:88px 24px 72px;
 }
-.hero h1{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  font-size:clamp(38px,7vw,64px);
-  margin:0;letter-spacing:0.2px;
-}
-.hero .tagline{
-  font-size:clamp(16px,2.4vw,20px);
-  color:var(--vert-sapin-clair);
-  margin-top:18px;
-  font-weight:300;
-}
-.hero-actions{
-  margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
-}
-.btn{
-  display:inline-block;padding:13px 26px;border-radius:999px;
-  font-size:14.5px;font-weight:600;text-decoration:none;
-  transition:transform .12s ease, opacity .15s ease;
-}
-.btn:active{transform:scale(0.97);}
-.btn-primary{background:var(--vert-sapin);color:var(--blanc);}
-.btn-ghost{background:transparent;color:var(--vert-sapin);border:1.5px solid rgba(31,51,41,0.2);}
-
-/* ---------- Section shell ---------- */
-section{padding:64px 0;}
-.section-head{text-align:center;max-width:560px;margin:0 auto 44px;}
 .eyebrow{
   font-size:12.5px;text-transform:uppercase;letter-spacing:0.12em;
-  color:var(--or);font-weight:600;margin-bottom:10px;
+  color:var(--or);font-weight:600;margin-bottom:12px;
 }
-.section-head h2{
+h1{
   font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  font-size:clamp(26px,4vw,36px);margin:0;
+  font-size:clamp(34px,8vw,56px);
+  margin:0;letter-spacing:0.2px;
 }
-.section-head p{margin-top:14px;color:var(--vert-sapin-clair);font-size:15.5px;}
-
-/* ---------- Photo grid ---------- */
-.photo-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
-}
-.photo-card{
-  position:relative;
-  aspect-ratio:4/5;
-  perspective:1200px;
-}
-.photo-flip{
-  position:relative;width:100%;height:100%;
-  cursor:pointer;
-  transition:transform .6s cubic-bezier(.4,.2,.2,1);
-  transform-style:preserve-3d;
-}
-.photo-card.flipped .photo-flip{transform:rotateY(180deg);}
-.photo-face{
-  position:absolute;inset:0;
-  border-radius:18px;
-  overflow:hidden;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
-}
-.photo-front{
-  background:
-    linear-gradient(rgba(31,51,41,0.03),rgba(31,51,41,0.03)),
-    var(--creme);
-  border:1.5px dashed rgba(216,179,106,0.55);
-  background-size:cover;background-position:center;
-  display:flex;align-items:flex-end;
-}
-.photo-caption{
-  position:relative;width:100%;
-  padding:14px 16px;
-  background:linear-gradient(0deg,rgba(31,51,41,0.72),rgba(31,51,41,0));
-  color:var(--blanc);font-size:14px;font-weight:500;
-}
-.photo-caption small{
-  display:block;font-size:11px;font-weight:400;color:var(--or);margin-top:2px;
-}
-.photo-caption .flip-hint{
-  display:block;font-size:10px;font-weight:400;color:rgba(250,248,245,0.55);margin-top:6px;
-  text-transform:uppercase;letter-spacing:0.06em;
-}
-.photo-back{
-  transform:rotateY(180deg);
-  background:var(--vert-sapin);
-  color:var(--creme);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;
-  padding:20px 16px;
-  border:1.5px solid rgba(216,179,106,0.55);
-}
-.photo-back h3{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  font-size:17px;color:var(--blanc);margin:0;
-}
-.photo-back p{
-  font-size:12.5px;line-height:1.5;color:rgba(246,238,223,0.8);
-  margin:10px 0 0;
-}
-.photo-back .back-price{
-  margin-top:14px;
-  font-family:'Jost',sans-serif;font-weight:600;font-size:20px;
-  color:var(--or);
-}
-
-/* ---------- About ---------- */
-.about{
-  background:var(--vert-sapin);
-  color:var(--creme);
-  border-radius:28px;
-  padding:56px 40px;
-  text-align:center;
-}
-.about .eyebrow{color:var(--or);}
-.about h2{
-  font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  color:var(--blanc);font-size:clamp(24px,4vw,32px);margin:0 0 18px;
-}
-.about p{max-width:620px;margin:0 auto;font-size:15.5px;color:rgba(246,238,223,0.85);}
-
-/* ---------- Où nous trouver ---------- */
-.market-card{
-  max-width:520px;margin:0 auto;
-  background:var(--blanc);
-  border-radius:18px;
-  padding:28px 30px;
-  box-shadow:0 1px 3px rgba(31,51,41,0.06);
-  border:1px solid rgba(31,51,41,0.06);
-  display:flex;gap:18px;align-items:flex-start;
-}
-.market-icon{
-  flex:0 0 44px;height:44px;border-radius:12px;
-  background:var(--creme);
-  display:flex;align-items:center;justify-content:center;
-}
-.market-icon svg{width:22px;height:22px;stroke:var(--vert-sapin);}
-.market-card h3{margin:0 0 4px;font-size:16.5px;font-weight:600;}
-.market-card p{margin:0;font-size:14.5px;color:var(--vert-sapin-clair);}
-.market-note{
-  text-align:center;font-size:12.5px;color:rgba(31,51,41,0.4);
-  margin-top:14px;font-style:italic;
-}
-
-/* ---------- Contact ---------- */
-.contact-box{
-  max-width:480px;margin:0 auto;text-align:center;
+.tagline{
+  font-size:clamp(16px,2.6vw,19px);
+  color:var(--vert-sapin-clair);
+  margin-top:20px;
+  font-weight:300;
 }
 .contact-email{
   display:inline-flex;align-items:center;gap:10px;
-  margin-top:8px;
-  padding:16px 28px;
+  margin-top:34px;
+  padding:14px 26px;
   border-radius:14px;
   background:var(--blanc);
   border:1.5px solid rgba(216,179,106,0.4);
-  font-size:17px;font-weight:600;color:var(--vert-sapin);
+  font-size:15.5px;font-weight:600;color:var(--vert-sapin);
   text-decoration:none;
 }
-.contact-email svg{width:20px;height:20px;stroke:var(--or);flex:0 0 auto;}
+.contact-email svg{width:18px;height:18px;stroke:var(--or);flex:0 0 auto;}
 
-/* ---------- Footer ---------- */
-footer{
-  padding:36px 24px 48px;
-  text-align:center;
-  color:rgba(31,51,41,0.45);
-  font-size:13px;
-}
-footer .tricolor-bar{margin-bottom:14px;}
 .social-row{
   display:flex;justify-content:center;gap:14px;
-  margin-bottom:18px;
+  margin-top:28px;
 }
 .social-link{
   display:flex;align-items:center;justify-content:center;
-  width:40px;height:40px;border-radius:50%;
+  width:42px;height:42px;border-radius:50%;
   border:1.5px solid rgba(31,51,41,0.15);
   color:var(--vert-sapin);
   transition:border-color .15s ease, color .15s ease, transform .15s ease;
@@ -300,402 +97,35 @@ footer .tricolor-bar{margin-bottom:14px;}
 .social-link:hover{border-color:var(--or);color:var(--or);transform:translateY(-2px);}
 .social-link svg{width:19px;height:19px;}
 
-/* ---------- Responsive ---------- */
-@media (max-width:900px){
-  .photo-grid{grid-template-columns:1fr 1fr;}
-}
-@media (max-width:760px){
-  .nav-links{display:none;}
-  .about{padding:40px 24px;border-radius:20px;}
-  .market-card{flex-direction:column;text-align:center;align-items:center;}
+footer{
+  margin-top:46px;
+  color:rgba(31,51,41,0.4);
+  font-size:12.5px;
 }
 </style>
 </head>
 <body>
 
-<nav class="site-nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-brand">
-      Le Goûter Français
-      <span class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></span>
-    </a>
-    <div class="nav-right">
-      <ul class="nav-links">
-        <li><a href="#creations" data-i18n="nav.creations">Créations</a></li>
-        <li><a href="#histoire" data-i18n="nav.histoire">Notre histoire</a></li>
-        <li><a href="#marche" data-i18n="nav.marche">Nous trouver</a></li>
-        <li><a href="#contact" class="nav-cta" data-i18n="nav.contact">Contact</a></li>
-      </ul>
-      <div class="lang-switch">
-        <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Changer de langue / Change language">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9.5"/>
-            <ellipse cx="12" cy="12" rx="4.3" ry="9.5"/>
-            <line x1="2.5" y1="12" x2="21.5" y2="12"/>
-            <path d="M4.2 6.5h15.6M4.2 17.5h15.6"/>
-          </svg>
-        </button>
-        <div class="lang-menu" id="lang-menu" role="menu">
-          <button type="button" data-lang="fr" role="menuitem">Français</button>
-          <button type="button" data-lang="en" role="menuitem">English</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<header class="hero">
+<div class="wrap">
+  <div class="eyebrow">Bientôt à Québec</div>
   <h1>Le Goûter Français</h1>
   <div class="tricolor-bar"><span class="b"></span><span class="w"></span><span class="r"></span></div>
-  <div class="eyebrow" style="margin-top:22px;" data-i18n="hero.eyebrow">Bientôt à Québec</div>
-  <p class="tagline" data-i18n-html="hero.tagline">Le goûter,<br>à la française</p>
-  <div class="hero-actions">
-    <a href="#creations" class="btn btn-primary" data-i18n="hero.cta1">Voir nos créations</a>
-    <a href="#marche" class="btn btn-ghost" data-i18n="hero.cta2">Nous trouver</a>
-  </div>
-</header>
+  <p class="tagline">Le goûter, à la française.<br>Notre site arrive très bientôt.</p>
 
-<main class="wrap">
+  <a class="contact-email" href="mailto:contact@legouterfrancais.com">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
+    contact@legouterfrancais.com
+  </a>
 
-  <section id="creations">
-    <div class="section-head">
-      <div class="eyebrow" data-i18n="creations.eyebrow">Nos créations</div>
-      <h2 data-i18n="creations.heading">Ce rituel de l'après-midi que toute la France attend chaque jour est enfin arrivé jusqu'à vous.</h2>
-      <p data-i18n="creations.body">Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.</p>
-    </div>
-    <ul class="photo-grid" style="list-style:none;margin:0;padding:0;">
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front">
-            <div class="photo-caption"><span data-i18n="card.original.name">L'Authentique</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.original.name">L'Authentique</h3>
-            <p data-i18n="card.original.desc">Pépites de chocolat noir, simple et généreux — la toute première recette</p>
-            <div class="back-price" data-i18n="card.original.price">4,50 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front" style="background-image:url('images/cookie-1.jpg');">
-            <div class="photo-caption"><span data-i18n="card.smores.name">Feu de Camp</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.smores.name">Feu de Camp</h3>
-            <p data-i18n="card.smores.desc">Pépites de chocolat, biscuit Graham, mini guimauve</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front" style="background-image:url('images/cookie-2.jpg');">
-            <div class="photo-caption"><span data-i18n="card.biscoff.name">Biscoff</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.biscoff.name">Biscoff</h3>
-            <p data-i18n="card.biscoff.desc">Pépites de chocolat au lait, cœur de Biscoff</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front" style="background-image:url('images/cookie-3.jpg');">
-            <div class="photo-caption"><span data-i18n="card.framboise.name">Framboise</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.framboise.name">Framboise</h3>
-            <p data-i18n="card.framboise.desc">Pépites de chocolat blanc, cœur de confiture framboise</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front" style="background-image:url('images/cookie-4.jpg');">
-            <div class="photo-caption"><span data-i18n="card.bueno.name">Bueno</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.bueno.name">Bueno</h3>
-            <p data-i18n="card.bueno.desc">Pépites de chocolat au lait, pépites de chocolat blanc, cœur de crème de noisette</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front">
-            <div class="photo-caption"><span data-i18n="card.erable.name">Cabane</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.erable.name">Cabane</h3>
-            <p data-i18n="card.erable.desc">Sucre d'érable, pacanes torréfiées et pépites d'érable</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front">
-            <div class="photo-caption"><span data-i18n="card.troischoco.name">Triple Choco</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.troischoco.name">Triple Choco</h3>
-            <p data-i18n="card.troischoco.desc">Pépites de chocolat noir, au lait et blanc</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front">
-            <div class="photo-caption"><span data-i18n="card.nutella.name">Nutella Peanut</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.nutella.name">Nutella Peanut</h3>
-            <p data-i18n="card.nutella.desc">Pépites de chocolat au lait, cœur de Nutella et d'arachide</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-      <li class="photo-card">
-        <div class="photo-flip">
-          <div class="photo-face photo-front">
-            <div class="photo-caption"><span data-i18n="card.brookie.name">Brookie</span><span class="flip-hint" data-i18n="card.hint">Touchez pour voir la composition</span></div>
-          </div>
-          <div class="photo-face photo-back">
-            <h3 data-i18n="card.brookie.name">Brookie</h3>
-            <p data-i18n="card.brookie.desc">Pépites de chocolat au lait, cœur de brownie fait maison</p>
-            <div class="back-price" data-i18n="card.price">5 $</div>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </section>
-
-  <section id="histoire">
-    <div class="about">
-      <div class="eyebrow" data-i18n="histoire.eyebrow">Notre histoire</div>
-      <h2 data-i18n="histoire.heading">L'authenticité de la pâtisserie française, un cookie à la fois</h2>
-      <p data-i18n="histoire.body">
-        Le Goûter Français est né d'une envie simple : retrouver dans un cookie la
-        générosité et la précision de la pâtisserie française. Chaque batch est
-        préparé en petite quantité, à la main, pour garder ce goût de fait-maison
-        qu'on ne trouve pas ailleurs.
-      </p>
-    </div>
-  </section>
-
-  <section id="marche">
-    <div class="section-head">
-      <div class="eyebrow" data-i18n="marche.eyebrow">Où nous trouver</div>
-      <h2 data-i18n="marche.heading">Retrouvez-nous en personne</h2>
-    </div>
-    <div class="market-card">
-      <div class="market-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/><path d="M9 20v-6h6v6"/></svg>
-      </div>
-      <div>
-        <h3 data-i18n="marche.name">Marché de [Ville]</h3>
-        <p data-i18n="marche.hours">Samedis, 9 h – 13 h</p>
-      </div>
-    </div>
-    <p class="market-note" data-i18n="marche.note">Détails à confirmer — emplacement à venir</p>
-  </section>
-
-  <section id="bureaux">
-    <div class="market-card" style="flex-direction:column;text-align:center;align-items:center;border:1.5px solid rgba(216,179,106,0.5);box-shadow:none;">
-      <h3 style="font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:22px;color:var(--or);" data-i18n="bureaux.heading">Pour vos bureaux et événements</h3>
-      <p style="margin-top:6px;" data-i18n="bureaux.body">Pensez à nos plateaux gourmands sur commande et offrez le goûter à vos équipes !</p>
-    </div>
-  </section>
-
-  <section id="contact">
-    <div class="section-head">
-      <div class="eyebrow" data-i18n="contact.eyebrow">Contact</div>
-      <h2 data-i18n="contact.heading">Une question, une commande ?</h2>
-    </div>
-    <div class="contact-box">
-      <a class="contact-email" href="mailto:contact@legouterfrancais.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
-        contact@legouterfrancais.com
-      </a>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  <div class="tricolor-bar"></div>
   <div class="social-row">
     <a class="social-link" href="https://www.instagram.com/legouterfrancais?igsh=MThwOGN4a2I0ZG10" target="_blank" rel="noopener" aria-label="Instagram">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
     </a>
   </div>
-  <p style="font-weight:600;letter-spacing:0.08em;color:var(--vert-sapin);">@legouterfrancais · legouterfrancais.com</p>
-  <p>© <span id="year"></span> Le Goûter Français. <span data-i18n="footer.rights">Tous droits réservés.</span></p>
-</footer>
 
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
+  <footer>© <span id="year"></span> Le Goûter Français</footer>
+</div>
 
-document.querySelectorAll('.photo-card').forEach((card) => {
-  card.addEventListener('click', () => card.classList.toggle('flipped'));
-});
-
-/* ============================================================
-   TRADUCTIONS / LANGUAGE SWITCH
-============================================================ */
-(function(){
-  "use strict";
-
-  const TRANSLATIONS = {
-    fr: {
-      "nav.creations": "Créations",
-      "nav.histoire": "Notre histoire",
-      "nav.marche": "Nous trouver",
-      "nav.contact": "Contact",
-      "hero.eyebrow": "Bientôt à Québec",
-      "hero.tagline": "Le goûter,<br>à la française",
-      "hero.cta1": "Voir nos créations",
-      "hero.cta2": "Nous trouver",
-      "creations.eyebrow": "Nos créations",
-      "creations.heading": "Ce rituel de l'après-midi que toute la France attend chaque jour est enfin arrivé jusqu'à vous.",
-      "creations.body": "Chaque recette est travaillée avec des ingrédients choisis et une finition soignée — sel de Guérande, chocolat noir, praliné maison.",
-      "card.hint": "Touchez pour voir la composition",
-      "card.price": "5 $",
-      "card.original.name": "L'Authentique",
-      "card.original.desc": "Pépites de chocolat noir, simple et généreux — la toute première recette",
-      "card.original.price": "4,50 $",
-      "card.smores.name": "Feu de Camp",
-      "card.smores.desc": "Pépites de chocolat, biscuit Graham, mini guimauve",
-      "card.biscoff.name": "Biscoff",
-      "card.biscoff.desc": "Pépites de chocolat au lait, cœur de Biscoff",
-      "card.framboise.name": "Framboise",
-      "card.framboise.desc": "Pépites de chocolat blanc, cœur de confiture framboise",
-      "card.bueno.name": "Bueno",
-      "card.bueno.desc": "Pépites de chocolat au lait, pépites de chocolat blanc, cœur de crème de noisette",
-      "card.erable.name": "Cabane",
-      "card.erable.desc": "Sucre d'érable, pacanes torréfiées et pépites d'érable",
-      "card.troischoco.name": "Triple Choco",
-      "card.troischoco.desc": "Pépites de chocolat noir, au lait et blanc",
-      "card.nutella.name": "Nutella Peanut",
-      "card.nutella.desc": "Pépites de chocolat au lait, cœur de Nutella et d'arachide",
-      "card.brookie.name": "Brookie",
-      "card.brookie.desc": "Pépites de chocolat au lait, cœur de brownie fait maison",
-      "histoire.eyebrow": "Notre histoire",
-      "histoire.heading": "L'authenticité de la pâtisserie française, un cookie à la fois",
-      "histoire.body": "Le Goûter Français est né d'une envie simple : retrouver dans un cookie la générosité et la précision de la pâtisserie française. Chaque batch est préparé en petite quantité, à la main, pour garder ce goût de fait-maison qu'on ne trouve pas ailleurs.",
-      "marche.eyebrow": "Où nous trouver",
-      "marche.heading": "Retrouvez-nous en personne",
-      "marche.name": "Marché de [Ville]",
-      "marche.hours": "Samedis, 9 h – 13 h",
-      "marche.note": "Détails à confirmer — emplacement à venir",
-      "bureaux.heading": "Pour vos bureaux et événements",
-      "bureaux.body": "Pensez à nos plateaux gourmands sur commande et offrez le goûter à vos équipes !",
-      "contact.eyebrow": "Contact",
-      "contact.heading": "Une question, une commande ?",
-      "footer.rights": "Tous droits réservés.",
-    },
-    en: {
-      "nav.creations": "Creations",
-      "nav.histoire": "Our story",
-      "nav.marche": "Find us",
-      "nav.contact": "Contact",
-      "hero.eyebrow": "Coming soon to Québec",
-      "hero.tagline": "Teatime,<br>the French way",
-      "hero.cta1": "See our creations",
-      "hero.cta2": "Find us",
-      "creations.eyebrow": "Our creations",
-      "creations.heading": "That afternoon ritual all of France looks forward to every day has finally reached you.",
-      "creations.body": "Every recipe is crafted with carefully chosen ingredients and a refined finish — Guérande sea salt, dark chocolate, homemade praliné.",
-      "card.hint": "Tap to see what's inside",
-      "card.price": "$5",
-      "card.original.name": "L'Authentique",
-      "card.original.desc": "Dark chocolate chips, simple and generous — our very first recipe",
-      "card.original.price": "$4.50",
-      "card.smores.name": "Feu de Camp",
-      "card.smores.desc": "Chocolate chips, Graham cracker, mini marshmallow",
-      "card.biscoff.name": "Biscoff",
-      "card.biscoff.desc": "Milk chocolate chips, Biscoff filling",
-      "card.framboise.name": "Raspberry",
-      "card.framboise.desc": "White chocolate chips, raspberry jam filling",
-      "card.bueno.name": "Bueno",
-      "card.bueno.desc": "Milk chocolate chips, white chocolate chips, hazelnut cream filling",
-      "card.erable.name": "Cabane",
-      "card.erable.desc": "Maple sugar, toasted pecans and maple flakes",
-      "card.troischoco.name": "Triple Choco",
-      "card.troischoco.desc": "Dark, milk and white chocolate chips",
-      "card.nutella.name": "Nutella Peanut",
-      "card.nutella.desc": "Milk chocolate chips, Nutella and peanut filling",
-      "card.brookie.name": "Brookie",
-      "card.brookie.desc": "Milk chocolate chips, homemade brownie filling",
-      "histoire.eyebrow": "Our story",
-      "histoire.heading": "The authenticity of French pastry, one cookie at a time",
-      "histoire.body": "Le Goûter Français was born from a simple idea: bring the generosity and precision of French pastry into a cookie. Every batch is made in small quantities, by hand, to keep that homemade taste you won't find anywhere else.",
-      "marche.eyebrow": "Where to find us",
-      "marche.heading": "Come see us in person",
-      "marche.name": "[City] Market",
-      "marche.hours": "Saturdays, 9 am – 1 pm",
-      "marche.note": "Details to be confirmed — location coming soon",
-      "bureaux.heading": "For your office and events",
-      "bureaux.body": "Ask about our gourmet trays made to order — treat your team to a French teatime!",
-      "contact.eyebrow": "Contact",
-      "contact.heading": "A question, an order?",
-      "footer.rights": "All rights reserved.",
-    },
-  };
-
-  const LANG_KEY = "lgf_lang";
-  const langBtn = document.getElementById("lang-btn");
-  const langMenu = document.getElementById("lang-menu");
-
-  function applyLang(lang){
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
-    document.documentElement.lang = lang;
-
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.dataset.i18n;
-      if (dict[key] !== undefined) el.textContent = dict[key];
-    });
-    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
-      const key = el.dataset.i18nHtml;
-      if (dict[key] !== undefined) el.innerHTML = dict[key];
-    });
-
-    langMenu.querySelectorAll("button").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.lang === lang);
-    });
-
-    localStorage.setItem(LANG_KEY, lang);
-  }
-
-  langBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isOpen = langMenu.classList.toggle("open");
-    langBtn.setAttribute("aria-expanded", String(isOpen));
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!langMenu.contains(e.target) && e.target !== langBtn){
-      langMenu.classList.remove("open");
-      langBtn.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  langMenu.querySelectorAll("button[data-lang]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      applyLang(btn.dataset.lang);
-      langMenu.classList.remove("open");
-      langBtn.setAttribute("aria-expanded", "false");
-    });
-  });
-
-  const savedLang = localStorage.getItem(LANG_KEY);
-  applyLang(savedLang === "en" ? "en" : "fr");
-})();
-</script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

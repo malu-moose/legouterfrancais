@@ -57,3 +57,53 @@ dig +short legouterfrancais.com
 Pour mettre à jour le contenu (`index.html`, images), répète l'étape 3 à
 chaque changement — pas d'automatisation prévue pour l'instant vu la
 simplicité du site. On pourra scripter ça via FTP plus tard si utile.
+
+## 7. Structure "coming soon" + aperçu privé protégé
+
+Le dépôt a maintenant deux pages :
+- `index.html` (racine) : la page publique "bientôt disponible"
+- `apercu/index.html` : le site complet, protégé par mot de passe, pour vos
+  tests internes avant le lancement officiel
+
+### Déployer cette structure (depuis le SSH du serveur WHC)
+
+```bash
+cd ~/legouterfrancais
+git pull
+
+# page publique
+cp index.html ~/public_html/
+cp robots.txt ~/public_html/
+
+# aperçu privé
+mkdir -p ~/public_html/apercu
+cp -r apercu/* ~/public_html/apercu/
+```
+
+### Activer le mot de passe sur /apercu/
+
+Le fichier `.htaccess` dans `apercu/` référence
+`/home/legou878/.htpasswds/apercu/passwd` — ce fichier de mots de passe doit
+être créé séparément (jamais commité dans git). Deux façons de faire :
+
+**Via cPanel (le plus simple) :**
+1. cPanel → **Confidentialité des répertoires** (Directory Privacy)
+2. Navigue jusqu'à `public_html/apercu`
+3. Coche "Protéger ce répertoire", choisis un nom, clique Enregistrer
+4. Crée un utilisateur + mot de passe pour y accéder
+5. ⚠️ Ça va générer son propre `.htaccess` dans `apercu/` — vérifie qu'il
+   garde bien la ligne `Header set X-Robots-Tag "noindex, nofollow"`, sinon
+   rajoute-la à la main après
+
+**Via SSH :**
+```bash
+mkdir -p ~/.htpasswds/apercu
+htpasswd -c ~/.htpasswds/apercu/passwd ton_identifiant
+# (demande de définir un mot de passe)
+```
+
+### Accès à l'aperçu
+
+`https://legouterfrancais.com/apercu/` — demandera le login/mot de passe
+défini ci-dessus. Le site n'est pas indexé par les moteurs de recherche
+(`robots.txt` + meta noindex + header noindex).

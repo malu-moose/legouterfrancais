@@ -1,0 +1,7 @@
+AuthType Basic
+AuthName "Aperçu privé — Le Goûter Français"
+AuthUserFile /home/legou878/.htpasswds/apercu/passwd
+Require valid-user
+
+# Pas d'indexation même en cas de fuite d'URL
+Header set X-Robots-Tag "noindex, nofollow"
