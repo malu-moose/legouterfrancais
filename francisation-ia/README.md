@@ -120,3 +120,75 @@ Variables pour l'envoi : `EXPEDITEUR_NOM`, `EXPEDITEUR_ENTREPRISE`, `EXPEDITEUR_
 `SMTP_HOTE`, `SMTP_PORT`, `SMTP_UTILISATEUR`, `SMTP_MOT_DE_PASSE`, `URL_AUDITS`, `LIEN_RDV`.
 
 Les fichiers de `donnees/` contiennent des données de prospects : ils sont exclus de Git.
+
+---
+
+# Volet 2 : guides PDF et vidéos IA (marque « PME Futée »)
+
+Chaîne de contenu qui tourne en parallèle de Francisation Express. Niche par défaut :
+**l'IA pour les PME et travailleurs autonomes du Québec**. C'est le sujet le plus en vogue,
+le marché francophone est bien moins saturé que l'anglais, et cette audience est
+exactement celle qui achète Francisation Express. Tout se change dans `contenu/config.json`.
+
+## L'échelle de prix
+
+| Étape | Produit | Prix |
+|---|---|---|
+| Gratuit | Vidéos TikTok, Reels Instagram et Facebook | 0 $ |
+| Entrée | Guide PDF | 27 $ |
+| Milieu | Guide + modèles prêts à copier (prompts, gabarits, tableurs) | 97 $ |
+| Haut | Francisation Express ou accompagnement IA sur mesure | 990 $ et plus |
+
+Le PDF sert surtout à transformer un spectateur en client. Le revenu vient du haut de l'échelle.
+
+## Les agents
+
+| Agent | Fichier | Ce qu'il fait |
+|---|---|---|
+| Veille | `contenu/veille.py` | Recherche web des sujets qui montent, classés par potentiel de vente |
+| Auteur | `contenu/guide.py` | Plan, chapitres, mise en page, PDF et page de vente |
+| Scénariste | `contenu/videos.py` | 20 scripts de vidéos courtes par guide et calendrier de publication de 30 jours |
+
+```bash
+python contenu/veille.py                      # sujets tendance -> donnees/sujets.csv
+python contenu/guide.py --meilleur            # guide du meilleur sujet -> donnees/guides/<sujet>/
+python contenu/videos.py donnees/guides/<sujet> --par-jour 2
+```
+
+Un guide de 30 pages coûte environ 3 à 6 $ d'API et prend 10 à 15 minutes.
+
+## Production des vidéos (ce qui reste manuel ou semi-automatique)
+
+Chaque script contient la voix off, les plans visuels (prompts) et les textes à l'écran.
+1. **Voix** : ElevenLabs (environ 22 $/mois) ou un avatar HeyGen (environ 29 $/mois).
+2. **Images** : générateur vidéo IA à partir des prompts, ou b-roll et captures d'écran.
+3. **Montage** : CapCut (sous-titres automatiques, gabarits).
+4. **Publication** : importer `donnees/calendrier.csv` dans Metricool ou Buffer, qui publie seul
+   sur les trois plateformes.
+
+Compte environ 10 minutes par vidéo une fois le rythme pris, soit 3 à 5 h par semaine pour une vidéo par jour.
+
+## Vente et livraison
+
+Payhip ou Gumroad : livraison automatique du PDF, gestion des taxes et des remboursements.
+Mettre l'URL de paiement à la place de `LIEN_PAIEMENT` dans `vente.html`.
+
+## Ce qu'il faut savoir, honnêtement
+
+* **Ce volet ne fera probablement pas 10 000 $ au premier mois.** Un compte neuf met en général
+  2 à 6 mois à décoller. Il faut le voir comme un actif qui grandit, pendant que Francisation Express
+  amène l'argent rapide.
+* **Étiquette IA obligatoire.** TikTok, Instagram et Facebook demandent d'étiqueter le contenu
+  réaliste généré par IA. Le calendrier le rappelle à chaque publication.
+* **Constance avant tout.** 1 à 2 vidéos par jour pendant 90 jours. Après 30 jours, garder les
+  formats qui marchent (vues, partages, clics en bio) et doubler dessus.
+* **Les taxes.** Inscription à la TPS et à la TVQ obligatoire au-delà de 30 000 $ de ventes sur
+  4 trimestres (petit fournisseur). Payhip peut percevoir les taxes à ta place.
+* **Pub payante** : seulement quand une vidéo organique performe déjà. On la booste avec 10 à 20 $ par jour,
+  pas avant.
+
+## Installation supplémentaire
+
+```bash
+pip install weasyprint    # pour la conversion PDF (sinon : ouvrir guide.html et Imprimer en PDF)
+```

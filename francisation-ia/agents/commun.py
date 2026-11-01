@@ -25,33 +25,52 @@ USER_AGENT = "Mozilla/5.0 (compatible; AuditFrancisation/1.0)"
 _client = None
 
 
-def claude(systeme: str, message: str, effort: str = "medium", max_tokens: int = 16000) -> str:
-    """Un appel à Claude, renvoie le texte. Repli automatique côté serveur si refus."""
+RECHERCHE_WEB = [{"type": "web_search_20260209", "name": "web_search", "max_uses": 15}]
+
+
+def claude(systeme: str, message: str, effort: str = "medium", max_tokens: int = 16000,
+           outils: list | None = None) -> str:
+    """Un appel à Claude, renvoie le texte. Repli automatique côté serveur si refus.
+    outils=RECHERCHE_WEB donne à Claude l'accès à la recherche web."""
     global _client
     import anthropic  # importé ici pour que les parties sans IA tournent sans le SDK
 
     if _client is None:
         _client = anthropic.Anthropic()
-    with _client.beta.messages.stream(
-        model=MODELE,
-        max_tokens=max_tokens,
-        system=systeme,
-        output_config={"effort": effort},
-        betas=["server-side-fallback-2026-07-01"],
-        extra_body={"fallbacks": "default"},
-        messages=[{"role": "user", "content": message}],
-    ) as flux:
-        reponse = flux.get_final_message()
+    messages = [{"role": "user", "content": message}]
+    options = {"tools": outils} if outils else {}
+    for _ in range(6):  # reprises si la recherche web met le tour en pause
+        with _client.beta.messages.stream(
+            model=MODELE,
+            max_tokens=max_tokens,
+            system=systeme,
+            output_config={"effort": effort},
+            betas=["server-side-fallback-2026-07-01"],
+            extra_body={"fallbacks": "default"},
+            messages=messages,
+            **options,
+        ) as flux:
+            reponse = flux.get_final_message()
+        if reponse.stop_reason != "pause_turn":
+            break
+        messages = [messages[0], {"role": "assistant", "content": reponse.content}]
     if reponse.stop_reason == "refusal":
         raise RuntimeError("Claude a refusé la requête")
     return "".join(b.text for b in reponse.content if b.type == "text").strip()
 
 
-def claude_json(systeme: str, message: str, effort: str = "medium"):
-    """Appel à Claude qui doit renvoyer du JSON (entouré ou non de ```)."""
-    texte = claude(systeme + "\nRéponds uniquement avec du JSON valide, sans commentaire.", message, effort)
-    texte = re.sub(r"^```(?:json)?\s*|\s*```$", "", texte.strip())
-    return json.loads(texte)
+def extraire_json(texte: str):
+    """Récupère le premier objet JSON dans une réponse (avec ou sans ```)."""
+    texte = re.sub(r"```(?:json)?", "", texte)
+    debut = min([i for i in (texte.find("{"), texte.find("[")) if i >= 0], default=0)
+    return json.JSONDecoder().raw_decode(texte[debut:])[0]
+
+
+def claude_json(systeme: str, message: str, effort: str = "medium", **options):
+    """Appel à Claude qui doit renvoyer du JSON."""
+    texte = claude(systeme + "\nTermine par du JSON valide uniquement, sans commentaire après.",
+                   message, effort, **options)
+    return extraire_json(texte)
 
 
 # ---------------------------------------------------------------- Web
