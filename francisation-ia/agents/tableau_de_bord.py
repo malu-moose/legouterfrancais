@@ -38,9 +38,9 @@ ENTONNOIR
   Clients (total)          {len(clients)}
 
 REVENUS {mois}
-  Projets du mois          {m(ponctuel:)} $
-  Récurrent mensuel        {m(recurrent:)} $
-  TOTAL                    {m(total:)} $   objectif 10 000 $  ({total / 10000:.0%})
+  Projets du mois          {m(ponctuel)} $
+  Récurrent mensuel        {m(recurrent)} $
+  TOTAL                    {m(total)} $   objectif 10 000 $  ({total / 10000:.0%})
 """)
     manque = max(0, 10000 - total)
     if manque:
