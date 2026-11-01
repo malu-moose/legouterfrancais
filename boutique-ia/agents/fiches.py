@@ -30,6 +30,15 @@ Règles :
 - Si le produit est interdit ({', '.join(CONFIG['interdits'])}), réponds {{"refus": "raison"}}."""
 
 
+MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre",
+        "octobre", "novembre", "décembre"]
+
+
+def date_longue(iso: str) -> str:
+    a, m, j = (int(x) for x in iso.split("-"))
+    return f"{j} {MOIS[m - 1]}"
+
+
 def slug(texte: str) -> str:
     t = unicodedata.normalize("NFKD", texte).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")[:70]
@@ -41,6 +50,8 @@ def rediger(p: dict) -> dict:
                for o in noms_options}
     livraison = (f"Livraison en {p['delai_jours']} jours ouvrables, avec numéro de suivi."
                  if p.get("delai_jours") else "Livraison avec numéro de suivi.")
+    if CONFIG.get("message_saison") and CONFIG.get("date_limite"):
+        livraison += " " + CONFIG["message_saison"].format(date_limite=date_longue(CONFIG["date_limite"]))
     blocs = [{"type": "image", "source": {"type": "url", "url": u}} for u in p["images"][:3]]
     blocs.append({"type": "text", "text": f"""Produit fournisseur : {p['titre_source']}
 Description fournisseur : {p['description_source'][:3000]}

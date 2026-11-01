@@ -16,7 +16,7 @@ import sys
 import time
 import urllib.parse
 
-from commun import DONNEES, ecrire_json, http_json, lire_json
+from commun import CONFIG, DONNEES, ecrire_json, http_json, lire_json
 
 BASE = "https://developers.cjdropshipping.com/api2.0/v1"
 _CACHE = DONNEES / ".jeton_cj.json"
@@ -70,6 +70,28 @@ def livraison(vid: str, destination: str = "CA", depart: str = "CN") -> tuple[fl
     return float(o.get("logisticPrice") or 0), str(o.get("logisticAging") or ""), o.get("logisticName", "")
 
 
+def _delai_max(delai: str) -> int:
+    nombres = [int(n) for n in re.findall(r"\d+", delai or "")]
+    return max(nombres) if nombres else 99
+
+
+def meilleure_livraison(vid: str, destination: str) -> tuple[float, str, str, str]:
+    """Essaie les entrepôts préférés dans l'ordre (US, CA avant la Chine : plus rapide).
+    Garde le premier dont le délai respecte la limite, sinon le plus rapide trouvé."""
+    trouves = []
+    for depart in CONFIG.get("pays_entrepot_preferes", ["CN"]):
+        frais, delai, transporteur = livraison(vid, destination, depart)
+        if not transporteur:
+            continue  # produit absent de cet entrepôt
+        if _delai_max(delai) <= CONFIG["delai_livraison_max_jours"]:
+            return frais, delai, transporteur, depart
+        trouves.append((_delai_max(delai), frais, delai, transporteur, depart))
+    if not trouves:
+        return 0.0, "", "", ""
+    _, frais, delai, transporteur, depart = min(trouves)
+    return frais, delai, transporteur, depart
+
+
 def produit(pid: str, destination: str = "CA") -> dict:
     """Détails normalisés d'un produit CJ, prêts pour l'agent des fiches."""
     p = appel("GET", "/product/query", {"pid": pid})
@@ -86,13 +108,13 @@ def produit(pid: str, destination: str = "CA") -> dict:
                           "image": v.get("variantImage") or "", "poids_g": v.get("variantWeight")})
     if not variantes:
         raise RuntimeError(f"Produit {pid} sans variante")
-    frais, delai, transporteur = livraison(variantes[0]["vid"], destination)
+    frais, delai, transporteur, entrepot = meilleure_livraison(variantes[0]["vid"], destination)
     return {
         "source": "cj", "id": pid, "titre_source": p.get("productNameEn", ""),
         "description_source": re.sub(r"<[^>]+>", " ", p.get("description") or "")[:4000],
         "categorie_source": p.get("categoryName", ""), "images": _images(p), "variantes": variantes,
         "cout_usd": max(v["cout_usd"] for v in variantes), "livraison_usd": frais,
-        "delai_jours": delai, "transporteur": transporteur,
+        "delai_jours": delai, "transporteur": transporteur, "entrepot": entrepot,
         "lien_fournisseur": f"https://cjdropshipping.com/product/-p-{pid}.html",
     }
 

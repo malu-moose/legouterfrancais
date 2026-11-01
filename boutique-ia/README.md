@@ -6,8 +6,16 @@ Toi : tu approuves les produits, tu produis les vidéos, tu gères la pub et l'a
 
 ## La stratégie : la masse, oui, mais au bon endroit
 
-**1 boutique, 50 produits au lancement, 25 nouveaux tests par semaine.**
-Une 2e boutique (autre niche) seulement quand la 1re a un produit gagnant (en général mois 2 ou 3).
+**2 boutiques, 50 produits chacune au lancement, puis 25 nouveaux tests par semaine et par boutique.**
+
+| Boutique | Dossier | Niche | Rôle |
+|---|---|---|---|
+| Animaux | `boutiques/animaux/` | Accessoires pour chiens et chats | Boutique de fond, toute l'année |
+| Cadeaux | `boutiques/cadeaux/` | Idées cadeaux et déco cosy | Coup de Noël, puis Saint-Valentin, fête des Mères, fête des Pères |
+
+Chaque boutique a son dossier : `config.json` (niche, prix, délais), `.env` (accès Shopify) et
+`donnees/` (produits, candidats, calendrier). Pour en ajouter une : copier un dossier et changer la config.
+Pas plus de 2 boutiques tant qu'aucune n'a de produit gagnant.
 
 Pourquoi pas 10 boutiques et 1 000 produits dès le départ :
 * Chaque boutique coûte son abonnement Shopify, ses applications et son budget pub.
@@ -40,34 +48,56 @@ au Canada (indications trompeuses sur le prix) et ça fait suspendre les comptes
 
 ## La routine
 
+Toutes les commandes passent par le lanceur : `python boutique.py <boutique> <agent> [options]`.
+
 ```bash
-# Lundi (30 min) : nouveaux produits
-python agents/chercheur_produits.py idees --nombre 15
-python agents/chercheur_produits.py sourcer          # puis ouvrir donnees/candidats.csv, mettre « approuve »
-python agents/fiches.py
-python agents/publier.py                             # brouillons, coup d'oeil dans l'admin Shopify
-python agents/publier.py --activer
-python agents/videos.py
+# Lundi (30 min par boutique) : nouveaux produits
+python boutique.py cadeaux chercheur_produits idees --nombre 15
+python boutique.py cadeaux chercheur_produits sourcer   # puis boutiques/cadeaux/donnees/candidats.csv : « approuve »
+python boutique.py cadeaux fiches
+python boutique.py cadeaux publier                      # brouillons, coup d'oeil dans l'admin Shopify
+python boutique.py cadeaux publier --activer
+python boutique.py cadeaux videos
 
 # Chaque jour (10 min)
-python agents/tableau_de_bord.py --jours 7 --pub 140
+python boutique.py tout tableau_de_bord --jours 7
 ```
 
-## Mise en place (une demi-journée)
+## Calendrier de Noël 2026 (boutique cadeaux)
+
+La fenêtre est courte : chaque semaine de retard coûte une part importante des ventes.
+
+| Dates | Étape |
+|---|---|
+| 2 au 8 novembre | Boutique en ligne, 50 premiers produits, premières vidéos. Tests pub à petit budget |
+| 9 au 22 novembre | Garder les 3 à 5 produits qui vendent, couper le reste, ajouter 25 produits par semaine |
+| 23 au 30 novembre | Black Friday (27 novembre) et Cyber Monday (30 novembre) : le plus gros pic. Offres réelles seulement |
+| 1er au 8 décembre | Dernière ligne droite : la date limite « livré avant Noël » pousse à l'achat |
+| 8 au 15 décembre | Seuls les produits d'entrepôts US ou CA restent livrables. Ajuster `date_limite` dans la config |
+| Après le 15 décembre | Cartes-cadeaux Shopify (livraison immédiate), puis préparation de la Saint-Valentin |
+
+La config cadeaux limite la livraison à 10 jours et teste d'abord les entrepôts US et CA de CJ.
+Chaque fiche et chaque vidéo mentionnent la date limite de commande (`date_limite` dans la config,
+au 8 décembre par défaut). Vérifie les délais réels des premières commandes et ajuste.
+
+## Mise en place (une demi-journée par boutique)
 
 1. **Shopify** : créer la boutique (plan Basic), thème gratuit Dawn, pages obligatoires
    (livraison, retours, conditions, confidentialité, contact). Le délai de livraison réel doit
    être écrit clairement.
 2. **Clé Shopify** : sur dev.shopify.com, créer une app, permissions `write_products`,
    `read_products`, `read_orders`, `read_publications`, `write_publications`, l'installer
-   sur la boutique, copier Client ID et Client secret dans `.env`.
-3. **CJ Dropshipping** : compte gratuit, Mon CJ > Autorisation > API, copier la clé dans `.env`.
+   sur la boutique, copier Client ID et Client secret dans `boutiques/<boutique>/.env`
+   (modèle : `.env.exemple` du même dossier). Une app par boutique.
+3. **CJ Dropshipping** : compte gratuit, Mon CJ > Autorisation > API, copier la clé dans le `.env`
+   à la racine de `boutique-ia` (un seul compte CJ pour les deux boutiques).
 4. **Expédition automatique** : installer l'app CJ Dropshipping sur Shopify et connecter la boutique.
    Nos produits portent le SKU des variantes CJ, ce qui permet de les associer aux produits CJ
    dans le tableau de bord CJ ; activer le paiement automatique des commandes. CJ expédie et
    renvoie le numéro de suivi à Shopify. Vérifier cette association sur les premiers produits.
-5. **Clé Anthropic** dans `.env` (console.anthropic.com).
-6. `pip install -r requirements.txt`, puis tester : `python agents/shopify.py` et `python agents/cj.py dog`.
+5. **Clé Anthropic** dans le `.env` à la racine (console.anthropic.com).
+6. `pip install -r requirements.txt`, puis tester : `python boutique.py cadeaux shopify` et
+   `python boutique.py cadeaux cj gift`.
 
 ## Budget et chiffres, honnêtement
 
@@ -76,7 +106,12 @@ python agents/tableau_de_bord.py --jours 7 --pub 140
 | Shopify Basic | environ 40 à 55 $ |
 | API Claude | 20 à 60 $ selon le volume |
 | Outils vidéo (CapCut, voix IA) et planification (Metricool) | 0 à 60 $ |
-| **Publicité de test** (TikTok ou Meta) | **600 à 1 500 $** : c'est le vrai coût |
+| **Publicité de test** (TikTok ou Meta) | **600 à 1 500 $ par boutique** : c'est le vrai coût |
+
+Avec 2 boutiques, tous les coûts doublent. En novembre et décembre, la publicité coûte nettement plus
+cher qu'en temps normal (tout le monde annonce), mais les gens achètent aussi beaucoup plus.
+Si le budget est serré, mieux vaut mettre l'argent pub sur la boutique cadeaux jusqu'à Noël
+et faire tourner la boutique animaux en vidéos gratuites.
 
 * 10 000 $ de **ventes** ne sont pas 10 000 $ de **profit**. Avec 60 % de marge brute et
   25 à 35 % des ventes dépensés en pub, il reste en général 15 à 25 % de profit net.
@@ -98,5 +133,5 @@ python agents/tableau_de_bord.py --jours 7 --pub 140
 ## Utiliser avec Claude Code dans VS Code
 
 Ouvrir le dossier `boutique-ia` dans VS Code avec l'extension Claude Code, puis demander par exemple :
-« trouve 15 nouveaux produits et prépare les fiches », « mets en ligne les produits approuvés »,
+« trouve 15 nouveaux produits pour la boutique cadeaux et prépare les fiches », « mets en ligne les produits approuvés »,
 « quels produits dois-je retirer ? ». Le fichier `CLAUDE.md` lui explique le projet et ses règles.

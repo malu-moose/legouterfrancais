@@ -12,12 +12,19 @@ import json
 from datetime import date, timedelta
 
 from commun import CONFIG, DONNEES, claude_json, ecrire_csv, ecrire_json, lire_csv, lire_json
+from fiches import date_longue
 
 PLATEFORMES = ["TikTok", "Instagram Reels", "Facebook Reels"]
 HEURES = ["08:00", "12:30", "19:30"]
 
+SAISON = ""
+if CONFIG.get("message_saison") and CONFIG.get("date_limite"):
+    SAISON = ("Saison : " + CONFIG["message_saison"].format(date_limite=date_longue(CONFIG["date_limite"]))
+              + " Joue sur l'idée cadeau et sur l'urgence réelle de la date limite de livraison.")
+
 SYSTEME = f"""Tu es scénariste de vidéos courtes qui vendent des produits (TikTok, Reels).
 Boutique : {CONFIG['boutique']}. Clientèle : {CONFIG['client_type']}. Langue : {CONFIG['langue']}.
+{SAISON}
 Règles :
 - Les 2 premières secondes arrêtent le défilement : problème visible, avant/après, réaction, démonstration.
 - Montre le produit en action. Une idée par vidéo. Durée 15 à 30 secondes.
@@ -52,8 +59,12 @@ Angle trouvé à la recherche : {json.dumps(p.get('idee', {}), ensure_ascii=Fals
 "voix_off": "facultatif, 40 mots max", "musique": "ambiance", "legende": "150 car. max",
 "mots_clics": ["5 à 8"]}}]}}""", effort="low")
         ecrire_json(dossier / f.name, r["videos"])
+        fin = date.fromisoformat(CONFIG["fin_saison"]) if CONFIG.get("fin_saison") else None
         for v in r["videos"]:
             quand = jour + timedelta(days=rang // a.par_jour)
+            if fin and quand > fin:
+                print("  fin de saison atteinte : vidéos gardées mais non planifiées")
+                break
             for plateforme in PLATEFORMES:
                 calendrier.append({
                     "date": quand.isoformat(), "heure": HEURES[rang % a.par_jour], "plateforme": plateforme,

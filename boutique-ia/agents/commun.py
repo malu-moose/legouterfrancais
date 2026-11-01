@@ -11,19 +11,30 @@ import urllib.request
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
-DONNEES = RACINE / "donnees"
+
+# ---------------------------------------------------------------- Boutique active
+# Chaque boutique a son dossier boutiques/<nom>/ : config.json, .env (accès Shopify), donnees/.
+# On la choisit avec le lanceur : python boutique.py <nom> <agent> ...
+
+_disponibles = sorted(p.name for p in (RACINE / "boutiques").iterdir() if (p / "config.json").exists())
+BOUTIQUE = os.environ.get("BOUTIQUE") or (_disponibles[0] if len(_disponibles) == 1 else "")
+if BOUTIQUE not in _disponibles:
+    raise SystemExit(f"Choisis une boutique parmi {_disponibles} : python boutique.py <nom> <agent>")
+DOSSIER_BOUTIQUE = RACINE / "boutiques" / BOUTIQUE
+DONNEES = DOSSIER_BOUTIQUE / "donnees"
 DONNEES.mkdir(exist_ok=True)
-CONFIG = json.loads((RACINE / "config.json").read_text(encoding="utf-8"))
+CONFIG = json.loads((DOSSIER_BOUTIQUE / "config.json").read_text(encoding="utf-8"))
 
 # ---------------------------------------------------------------- .env
+# D'abord celui de la boutique (accès Shopify), puis celui de la racine (clés communes).
 
-_env = RACINE / ".env"
-if _env.exists():
-    for ligne in _env.read_text(encoding="utf-8").splitlines():
-        if "=" in ligne and not ligne.lstrip().startswith("#"):
-            cle, val = ligne.split("=", 1)
-            if val.strip() and not os.environ.get(cle.strip()):
-                os.environ[cle.strip()] = val.strip()
+for _env in (DOSSIER_BOUTIQUE / ".env", RACINE / ".env"):
+    if _env.exists():
+        for ligne in _env.read_text(encoding="utf-8").splitlines():
+            if "=" in ligne and not ligne.lstrip().startswith("#"):
+                cle, val = ligne.split("=", 1)
+                if val.strip() and not os.environ.get(cle.strip()):
+                    os.environ[cle.strip()] = val.strip()
 
 MODELE = os.environ.get("MODELE_CLAUDE", "claude-opus-5-5")
 

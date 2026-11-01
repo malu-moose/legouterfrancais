@@ -1,0 +1,35 @@
+{
+  "boutique": "Nom de la boutique cadeaux",
+  "niche": "Idées cadeaux originales et décorations cosy : Noël en ce moment, puis Saint-Valentin, fête des Mères et fête des Pères. Cadeaux pour elle, pour lui, pour les enfants, pour la maison, cadeaux personnalisables, petits cadeaux à moins de 30 $",
+  "client_type": "Personnes de 25 à 60 ans qui cherchent un cadeau qui fait plaisir sans se casser la tête, souvent pressées, qui achètent sur une vidéo TikTok ou Instagram",
+  "marche": "Canada (Québec en priorité)",
+  "langue": "fr-CA",
+  "devise": "CAD",
+  "taux_usd_vers_devise": 1.38,
+  "multiplicateur_prix": 2.5,
+  "marge_min_devise": 15,
+  "prix_min": 14.99,
+  "prix_max": 79.99,
+  "delai_livraison_max_jours": 10,
+  "pays_entrepot_preferes": [
+    "US",
+    "CA",
+    "CN"
+  ],
+  "produits_par_lot": 30,
+  "statut_publication": "DRAFT",
+  "interdits": [
+    "produits de marque ou contrefaçons",
+    "médicaments, suppléments, nourriture",
+    "allégations de santé ou vétérinaires",
+    "produits électriques sans certification",
+    "faux prix barrés ou fausse rareté",
+    "produits sous licence (personnages, équipes sportives)",
+    "jouets pour enfants de moins de 3 ans",
+    "bougies et produits chauffants",
+    "cosmétiques"
+  ],
+  "message_saison": "Pour recevoir votre commande avant Noël, commandez au plus tard le {date_limite}.",
+  "date_limite": "2026-12-08",
+  "fin_saison": "2026-12-24"
+}
