@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Francisation Express</title>
+<meta name="description" content="Votre site web en français du Québec en 5 jours ouvrables. Traduction IA, révision humaine, prix fixe.">
+<style>
+:root{--bleu:#0b3d91;--bleu-clair:#e8eefb;--texte:#1b1f2a;--gris:#5b6475;--fond:#ffffff;--carte:#f6f7fb}
+@media (prefers-color-scheme:dark){:root{--bleu:#7aa7ff;--bleu-clair:#16213a;--texte:#e8ebf2;--gris:#a3abbd;--fond:#0e1220;--carte:#171c2c}}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.6 system-ui,-apple-system,sans-serif;color:var(--texte);background:var(--fond)}
+.w{max-width:1040px;margin:auto;padding:0 16px}
+header{padding:20px 0;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;color:var(--bleu);font-size:20px}
+.btn{display:inline-block;background:var(--bleu);color:#fff;padding:14px 22px;border-radius:10px;font-weight:700;text-decoration:none}
+@media (prefers-color-scheme:dark){.btn{color:#0e1220}}
+.hero{padding:56px 0 40px}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.1;margin:0 0 16px}
+.hero p{font-size:20px;color:var(--gris);max-width:640px}
+form{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+input{flex:1 1 260px;padding:14px;border-radius:10px;border:1px solid #ccd;font-size:16px;background:var(--fond);color:var(--texte)}
+button{border:0;cursor:pointer;font-size:16px}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0}
+.carte{background:var(--carte);border-radius:14px;padding:22px}
+.carte h3{margin-top:0}
+.prix{font-size:34px;font-weight:800;color:var(--bleu)}
+section{padding:40px 0}
+h2{font-size:30px}
+.etapes{counter-reset:e;list-style:none;padding:0}
+.etapes li{counter-increment:e;margin:14px 0;padding-left:48px;position:relative}
+.etapes li:before{content:counter(e);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;background:var(--bleu-clair);color:var(--bleu);font-weight:800;display:grid;place-items:center}
+footer{padding:40px 0;color:var(--gris);font-size:14px}
+</style>
+</head>
+<body>
+<div class="w">
+<header><div class="logo">Francisation Express</div><a class="btn" href="#audit">Audit gratuit</a></header>
+
+<div class="hero">
+<h1>Votre site web en français du Québec, en 5 jours.</h1>
+<p>Traduction par IA spécialisée, révision par un langagier humain, prix fixe. Vous restez concentré sur vos affaires, nous livrons un site prêt à publier.</p>
+<form id="audit" action="https://formspree.io/f/VOTRE_ID" method="POST">
+<input type="url" name="site" placeholder="https://votresite.com" required>
+<input type="email" name="email" placeholder="Votre courriel professionnel" required>
+<button class="btn" type="submit">Recevoir mon audit gratuit</button>
+</form>
+<p style="font-size:14px">Rapport page par page en 24 h. Aucun engagement.</p>
+</div>
+
+<section>
+<h2>Pourquoi maintenant</h2>
+<div class="grille">
+<div class="carte"><h3>Une exigence au Québec</h3><p>La Charte de la langue française demande que l'information commerciale, dont votre site web, soit offerte en français.</p></div>
+<div class="carte"><h3>Vos clients achètent en français</h3><p>Près de 8 Québécois sur 10 ont le français comme langue principale. Un site en anglais seulement leur fait quitter la page.</p></div>
+<div class="carte"><h3>Sans la lenteur d'une agence</h3><p>Pas de soumission à 0,25 $ du mot ni de délai de six semaines. Prix connu d'avance, livraison en une semaine.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Comment ça marche</h2>
+<ol class="etapes">
+<li><b>Audit gratuit.</b> Nous analysons votre site et vous montrons chaque page et chaque bouton encore en anglais.</li>
+<li><b>Traduction.</b> Notre IA traduit tout votre contenu avec la terminologie de l'Office québécois de la langue française et votre propre glossaire.</li>
+<li><b>Révision humaine.</b> Un langagier vérifie les passages délicats : ton, termes techniques, appels à l'action.</li>
+<li><b>Livraison.</b> Fichier prêt à importer (WordPress, Shopify, Wix, Webflow) ou mise en ligne par notre équipe.</li>
+</ol>
+</section>
+
+<section>
+<h2>Tarifs</h2>
+<div class="grille">
+<div class="carte"><h3>Essentiel</h3><div class="prix">990 $</div><p>Site vitrine jusqu'à 15 pages ou 5 000 mots. Révision humaine incluse. Livraison en 5 jours ouvrables.</p><a class="btn" href="#audit">Commencer</a></div>
+<div class="carte"><h3>Pro</h3><div class="prix">1 990 $</div><p>Jusqu'à 50 pages ou 15 000 mots, boutique en ligne incluse. Glossaire de marque. Livraison en 5 jours ouvrables.</p><a class="btn" href="#audit">Commencer</a></div>
+<div class="carte"><h3>Entretien</h3><div class="prix">249 $<small style="font-size:16px">/mois</small></div><p>Chaque nouvelle page, fiche produit ou infolettre traduite en 48 h. Sans engagement.</p><a class="btn" href="#audit">Commencer</a></div>
+</div>
+<p style="color:var(--gris);font-size:14px">Taxes en sus. Grand site ou documents (contrats, conditions de vente, catalogues) : sur devis.</p>
+</section>
+
+<footer>
+Francisation Express. Service de traduction et de révision linguistique. Nos audits sont des constats techniques et ne constituent pas un avis juridique ; pour vos obligations précises, consultez l'Office québécois de la langue française.
+</footer>
+</div>
+</body>
+</html>
