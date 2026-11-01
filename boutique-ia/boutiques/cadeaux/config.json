@@ -31,5 +31,14 @@
   ],
   "message_saison": "Pour recevoir votre commande avant Noël, commandez au plus tard le {date_limite}.",
   "date_limite": "2026-12-08",
-  "fin_saison": "2026-12-24"
+  "fin_saison": "2026-12-24",
+  "regles_pub": {
+    "couper_si_depense_sans_vente": 40,
+    "roas_cible": 2.5,
+    "hausse_quotidienne": 0.25,
+    "baisse_quotidienne": 0.3,
+    "jours_recents": 3,
+    "budget_test_total": 1200,
+    "frais_paiement": 0.03
+  }
 }

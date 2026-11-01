@@ -59,9 +59,29 @@ python boutique.py cadeaux publier                      # brouillons, coup d'oei
 python boutique.py cadeaux publier --activer
 python boutique.py cadeaux videos
 
-# Chaque jour (10 min)
+# Chaque jour (10 min) : noter la pub de la veille, puis lire les décisions
+python boutique.py cadeaux pub ajouter lampe lune 35 --plateforme tiktok
 python boutique.py tout tableau_de_bord --jours 7
 ```
+
+## Les décisions pub du tableau de bord
+
+Chaque jour, noter la dépense de la veille par produit (montant affiché par TikTok ou Meta) :
+`pub ajouter <mots du produit> <montant>`. `pub liste` montre les produits, `pub corriger`
+annule la dernière saisie. Le tableau de bord croise ces dépenses avec les vraies ventes Shopify :
+
+| Décision | Quand | Budget du lendemain |
+|---|---|---|
+| POUSSER | 2 ventes ou plus et au moins 2,50 $ de ventes par $ de pub sur 3 jours | +25 % |
+| GARDER | Rentable, mais pas encore assez pour accélérer | identique |
+| CONTINUER LE TEST | Pas assez de données | identique, jusqu'au seuil de coupe |
+| BAISSER | Des ventes, mais sous le seuil de rentabilité | -30 % |
+| COUPER | 40 $ dépensés sans vente, ou sous le seuil après un test suffisant | arrêter |
+
+Le seuil de rentabilité est calculé pour chaque produit à partir de son prix et de son coût
+(environ 1,7 $ de ventes par $ de pub pour un produit à 35 $ qui coûte 13 $).
+Le tableau de bord suit aussi le budget de test total et alerte s'il s'épuise sans produit rentable.
+Tous les seuils se règlent dans `regles_pub` de `config.json`.
 
 ## Calendrier de Noël 2026 (boutique cadeaux)
 

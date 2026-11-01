@@ -16,7 +16,12 @@ Le propriétaire n'est pas développeur : réponds en français, explique simple
 5. `python boutique.py <b> publier --essai` puis `python boutique.py <b> publier` : brouillons Shopify
 6. `python boutique.py <b> publier --activer` : mise en vente
 7. `python boutique.py <b> videos` : scripts vidéo et `donnees/calendrier.csv`
-8. `python boutique.py <b> tableau_de_bord --jours 7 --pub <dépenses pub>` : résultats
+8. `python boutique.py <b> pub ajouter <mots du produit> <montant> [--plateforme tiktok] [--date AAAA-MM-JJ]` :
+   saisie quotidienne de la dépense pub par produit (`pub liste`, `pub corriger`)
+9. `python boutique.py <b> tableau_de_bord --jours 7` : résultats et décision pub par produit
+   (COUPER, BAISSER, CONTINUER LE TEST, GARDER, POUSSER) selon `regles_pub` de la config.
+   Quand le propriétaire donne ses dépenses en vrac (« 35 sur la lampe, 20 sur le plaid »),
+   fais les saisies une par une puis lance le tableau de bord et résume les décisions.
 
 État de chaque produit : `boutiques/<b>/donnees/produits/<id>.json`, champ `statut` :
 candidat, approuve, rejete, fiche, publie (brouillon Shopify), actif (en vente).

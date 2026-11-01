@@ -24,5 +24,14 @@
     "allégations de santé ou vétérinaires",
     "produits électriques sans certification",
     "faux prix barrés ou fausse rareté"
-  ]
+  ],
+  "regles_pub": {
+    "couper_si_depense_sans_vente": 40,
+    "roas_cible": 2.5,
+    "hausse_quotidienne": 0.25,
+    "baisse_quotidienne": 0.3,
+    "jours_recents": 3,
+    "budget_test_total": 0,
+    "frais_paiement": 0.03
+  }
 }
