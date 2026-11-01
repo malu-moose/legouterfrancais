@@ -1,0 +1,24 @@
+{
+  "boutique": "Nom de la boutique",
+  "niche": "Accessoires pour chiens et chats : confort, promenade, jeu, soins et hygiène",
+  "client_type": "Propriétaires d'animaux de 25 à 55 ans, très attachés à leur animal, qui achètent sur un coup de coeur vu sur TikTok ou Instagram",
+  "marche": "Canada (Québec en priorité)",
+  "langue": "fr-CA",
+  "devise": "CAD",
+  "taux_usd_vers_devise": 1.38,
+  "multiplicateur_prix": 2.5,
+  "marge_min_devise": 15,
+  "prix_min": 19.99,
+  "prix_max": 89.99,
+  "delai_livraison_max_jours": 12,
+  "pays_entrepot_preferes": ["US", "CA", "CN"],
+  "produits_par_lot": 25,
+  "statut_publication": "DRAFT",
+  "interdits": [
+    "produits de marque ou contrefaçons",
+    "médicaments, suppléments, nourriture",
+    "allégations de santé ou vétérinaires",
+    "produits électriques sans certification",
+    "faux prix barrés ou fausse rareté"
+  ]
+}
