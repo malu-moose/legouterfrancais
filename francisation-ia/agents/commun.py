@@ -94,6 +94,7 @@ class _Extracteur(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.segments: list[str] = []
         self.liens: list[str] = []
+        self.courriels: list[str] = []
         self.lang = ""
         self._pile_ignore = 0
         self._courant: list[str] = []
@@ -111,7 +112,10 @@ class _Extracteur(HTMLParser):
         if tag in self.IGNORE:
             self._pile_ignore += 1
         if tag == "a" and a.get("href"):
-            self.liens.append(a["href"])
+            if a["href"].lower().startswith("mailto:"):
+                self.courriels.append(a["href"][7:].split("?")[0])
+            else:
+                self.liens.append(a["href"])
         for attr in ("alt", "placeholder", "title", "aria-label"):
             if a.get(attr) and len(a[attr]) > 2:
                 self.segments.append(" ".join(a[attr].split()))
@@ -153,11 +157,20 @@ def analyser_html(html: str, url_base: str) -> dict:
             r"\.(pdf|jpe?g|png|gif|svg|zip|mp4|webp|docx?|xlsx?)$", p.path, re.I
         ):
             liens.append(absolu)
-    return {"lang": ex.lang, "segments": segments, "liens": list(dict.fromkeys(liens))}
+    courriels = ex.courriels + RE_COURRIEL.findall(" ".join(ex.segments))
+    courriels = [c.strip().lower() for c in courriels
+                 if not re.search(r"\.(png|jpe?g|gif|webp|svg)$|example\.|sentry|wixpress|@2x", c, re.I)]
+    return {"lang": ex.lang, "segments": segments, "liens": list(dict.fromkeys(liens)),
+            "courriels": list(dict.fromkeys(courriels))}
+
+
+RE_COURRIEL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+PAGES_CONTACT = re.compile(r"contact|nous-joindre|joindre|about|a-propos|propos|equipe|team", re.I)
 
 
 def explorer_site(url: str, max_pages: int = 30) -> list[dict]:
-    """Parcours en largeur des pages internes d'un site. Renvoie [{url, lang, segments}]."""
+    """Parcours des pages internes d'un site, pages Contact en premier.
+    Renvoie [{url, lang, segments, courriels}]."""
     a_visiter, visitees, pages = [url], set(), []
     while a_visiter and len(pages) < max_pages:
         courante = a_visiter.pop(0)
@@ -171,9 +184,26 @@ def explorer_site(url: str, max_pages: int = 30) -> list[dict]:
         if not html:
             continue
         info = analyser_html(html, courante)
-        pages.append({"url": courante, "lang": info["lang"], "segments": info["segments"]})
-        a_visiter += [l for l in info["liens"] if l not in visitees]
+        pages.append({"url": courante, "lang": info["lang"], "segments": info["segments"],
+                      "courriels": info["courriels"]})
+        nouveaux = [l for l in info["liens"] if l not in visitees and l not in a_visiter]
+        a_visiter = [l for l in nouveaux if PAGES_CONTACT.search(l)] + a_visiter + \
+                    [l for l in nouveaux if not PAGES_CONTACT.search(l)]
     return pages
+
+
+def meilleur_courriel(pages: list[dict], site: str) -> tuple[str, str]:
+    """Choisit l'adresse générique publiée sur le domaine de l'entreprise (info@, contact@...).
+    Renvoie (courriel, page où il est publié) : la page sert de preuve LCAP."""
+    dom = urllib.parse.urlparse(site).netloc.lower().removeprefix("www.")
+    trouves = [(c, p["url"]) for p in pages for c in p.get("courriels", [])]
+    if not trouves:
+        return "", ""
+    rang = lambda c: (  # noqa: E731
+        0 if c[0].endswith("@" + dom) else 1,
+        0 if re.match(r"(info|contact|bonjour|hello|admin|bureau|office|sales|ventes)@", c[0]) else 1,
+    )
+    return sorted(trouves, key=rang)[0]
 
 
 # ---------------------------------------------------------------- Langue

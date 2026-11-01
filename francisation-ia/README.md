@@ -36,13 +36,16 @@ chaque mois (20 clients en entretien = 5 000 $ récurrents).
 
 | Agent | Fichier | Ce qu'il fait |
 |---|---|---|
-| Prospecteur | `agents/prospecteur.py` | Analyse des centaines de sites, mesure la part d'anglais, classe les prospects |
+| Chercheur | `agents/chercheur.py` | Construit la liste d'entreprises (import Google Maps ou recherche web) |
+| Prospecteur | `agents/prospecteur.py` | Analyse les sites, mesure la part d'anglais, récupère le courriel publié, classe les prospects |
 | Auditeur | `agents/auditeur.py` | Génère un rapport d'audit HTML personnalisé (l'aimant à clients) |
 | Rédacteur | `agents/redacteur.py` | Écrit le courriel + 2 relances par prospect, les envoie au bon rythme |
 | Traducteur | `agents/traducteur.py` | Livre la traduction complète du site, avec relecture IA et liste des doutes |
 | Tableau de bord | `agents/tableau_de_bord.py` | Entonnoir, revenus du mois, écart à l'objectif |
 
 Le site de vente est dans `site/index.html`.
+
+Le plan de lancement jour par jour est dans `LANCEMENT.md`.
 
 ## Ta routine (environ 1 h par jour)
 

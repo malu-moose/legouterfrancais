@@ -11,7 +11,7 @@ Usage : python agents/prospecteur.py [--pages 5]
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 
-from commun import DONNEES, ecrire_csv, explorer_site, lire_csv, nombre_mots, part_anglais
+from commun import DONNEES, ecrire_csv, explorer_site, lire_csv, meilleur_courriel, nombre_mots, part_anglais
 
 
 def evaluer(entreprise: dict, max_pages: int) -> dict:
@@ -32,6 +32,8 @@ def evaluer(entreprise: dict, max_pages: int) -> dict:
     mots = nombre_mots(tous)
     # Score de 0 à 100 : plus le site est anglais, plus le prospect est chaud.
     score = round(anglais * 80 + (0 if a_version_fr else 20))
+    if not res.get("email"):
+        res["email"], res["preuve_courriel"] = meilleur_courriel(pages, site)
     return dict(
         res,
         pages_vues=len(pages),
